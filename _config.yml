@@ -26,7 +26,7 @@ github_username:  tanghuaizhe
 
 # Build settings
 markdown: kramdown
-theme: minima
+# theme: minima
 plugins:
   - jekyll-feed
 remote_theme: chrisrhymes/bulma-clean-theme
