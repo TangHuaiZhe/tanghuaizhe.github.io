@@ -26,9 +26,10 @@ github_username:  tanghuaizhe
 
 # Build settings
 markdown: kramdown
-theme: jekyll-theme-architect
+theme: minima
 plugins:
   - jekyll-feed
+# remote_theme: chrisrhymes/bulma-clean-theme
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
 # to override the default setting.
