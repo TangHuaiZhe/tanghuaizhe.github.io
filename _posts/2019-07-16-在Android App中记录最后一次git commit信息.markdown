@@ -16,7 +16,7 @@
 
 
 
-##### 2秒内点击5次的判断逻辑:
+#### 2秒内点击5次的判断逻辑:
 
 ```java
   private void something() {
@@ -57,9 +57,11 @@ def gitLog = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(in
 
 
 
-完整代码如下:
+**完整代码如下:**
 
 ```groovy
+import org.codehaus.groovy.runtime.IOGroovyMethods
+
 def getGitCommit() {
     def gitDir = new File("${rootDir}/.git")
     println("gitdir is ${gitDir}")
@@ -78,11 +80,17 @@ def getGitCommit() {
 }
 ```
 
-##### 在Gradle编译时插入相关字段:
+#### 在Gradle编译时插入相关字段:
 
 ```groovy
     variant.buildConfigField 'String', 'LAST_CI', "\"${getGitCommit()}\""
     variant.buildConfigField 'String', 'BUILD_TIME', "\"${releaseTime()}\""
+```
+
+#### 在Java中引用:
+
+```java
+String message = BuildConfig.LAST_CI
 ```
 
 得到的结果类似:
@@ -93,7 +101,7 @@ def getGitCommit() {
 
 
 
-##### Git log的格式自定义:
+#### Git log的格式自定义:
 
 `git log --pretty=format:%cn_%s_%h_%cd --date=format:'%Y-%m-%d_%H:%M' -1`
 
