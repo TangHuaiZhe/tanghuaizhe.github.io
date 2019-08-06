@@ -177,4 +177,8 @@ preBuild.dependsOn autoR
 
 具体不多说，可以参考源码。
 
+
+
+**注:目前只兼容了Mac和Linux，未支持windows，有兴趣的可以修改，应该是目录之类的问题。**
+
 源码地址[AutoR](https://github.com/TangHuaiZhe/AutoR)
