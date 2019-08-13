@@ -21,7 +21,9 @@
 
 
 
-3，在你插件的源码中放置断点。
+3，回到idea，在你插件的源码中放置断点。
+
+
 
 4，回到你使用此plugin的Android项目目录下，
 
@@ -31,7 +33,16 @@
 
 这里的`removeRes`替换为你插件提供的`gradle`任务名，后面的参数意思是让gradle进入调试模式。
 
+此时gradle会开始等待远程连接。
+
+
+
+5，回到idea，点击调试按钮
+
+![image-20190813171135626](https://github.com/TangHuaiZhe/tanghuaizhe.github.io/blob/master/assets/image-20190813171135626.png?raw=true)
+
 
 
 5，回到你的idea，等待`gradle`任务执行到你的断点，此时断点应该已然生效。
 
+![image-20190813171528905](https://github.com/TangHuaiZhe/tanghuaizhe.github.io/blob/master/assets/image-20190813171528905.png?raw=true)
