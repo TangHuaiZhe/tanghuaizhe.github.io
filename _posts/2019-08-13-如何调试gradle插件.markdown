@@ -12,11 +12,11 @@
 
 1，首先开发一个gradle插件，一般都在intelliJ IDEA中，点击``Edit configurations`，打开`Run/Debug Configurations`，点击左上角的`+`号，找到`Remote`，直接`ok`点击添加。
 
-![image-20190813160721674](../assets/image-20190813160721674.png)
+![](https://github.com/TangHuaiZhe/tanghuaizhe.github.io/blob/master/assets/image-20190813160721674.png)
 
 2，将项目的调试配置修改为刚才添加的配置，这里没有修改名字因此是Unnamed。
 
-![WX20190813-160810](../assets/WX20190813-160810.png)
+![](https://github.com/TangHuaiZhe/tanghuaizhe.github.io/blob/master/assets/WX20190813-160810.png
 
 
 
