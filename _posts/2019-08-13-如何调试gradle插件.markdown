@@ -10,7 +10,8 @@
 
 
 
-1，首先开发一个gradle插件，一般都在intelliJ IDEA中，点击``Edit configurations`，打开`Run/Debug Configurations`，点击左上角的`+`号，找到`Remote`，直接`ok`点击添加。
+1，首先开发一个gradle插件，一般都在intelliJ IDEA中，
+点击`Edit configurations`，打开`Run/Debug Configurations`，点击左上角的`+`号，找到`Remote`，直接`ok`点击添加。
 
 ![Remote](https://github.com/TangHuaiZhe/tanghuaizhe.github.io/blob/master/assets/image-20190813160721674.png?raw=true)
 
@@ -32,5 +33,5 @@
 
 
 
-5，回到你的idea，等待gradle任务执行到你的断点，此时断点应该已然生效。
+5，回到你的idea，等待`gradle`任务执行到你的断点，此时断点应该已然生效。
 
