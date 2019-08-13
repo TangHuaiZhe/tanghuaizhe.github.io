@@ -16,7 +16,7 @@
 
 2，将项目的调试配置修改为刚才添加的配置，这里没有修改名字因此是Unnamed。
 
-![](https://github.com/TangHuaiZhe/tanghuaizhe.github.io/blob/master/assets/WX20190813-160810.png
+![](https://github.com/TangHuaiZhe/tanghuaizhe.github.io/blob/master/assets/WX20190813-160810.png)
 
 
 
