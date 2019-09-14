@@ -142,9 +142,9 @@ unit4A = nil
 //Apartment 4A is being deinitialized
 ```
 
-![这里写图片描述](71.jpeg)
+![](71-20190914112523471.jpeg)
 
-![这里写图片描述](70.jpeg)
+![这里写图片描述](70-20190914112345171.jpeg)
 
 
 >注意
