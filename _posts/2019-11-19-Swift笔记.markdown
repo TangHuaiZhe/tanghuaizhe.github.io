@@ -1,0 +1,3061 @@
+# Swift note
+
+[TOC]
+
+Swift通过采用现代编程模式来避免大量常见编程错误：
+
+* 变量始终在使用前初始化。
+* 检查数组索引超出范围的错误。
+* 检查整数是否溢出。
+* 可选值确保明确处理 nil 值。
+* 内存被自动管理。
+* 错误处理允许从意外故障控制恢复。
+
+
+
+## 简单值
+
+### let和var
+使用 let 来声明常量，使用 var 来声明变量
+```swift
+var myVariable = 42
+myVariable = 50
+let myConstant = 42
+
+//声明的同时赋值,自动推断类型
+let implicitInteger = 70
+let implicitDouble = 70.0
+//如果初始值没有提供足够的信息（或者没有初始值）
+//那你需要在变量后面声明类型，用冒号分割。
+let explicitDouble: Double = 70
+
+//和java不同，值永远不会被隐式转换为其他类型。
+//如果你需要把一个值转换成其他类型，请显式转换。
+let label = "The width is"
+let width = 94
+let widthLabel = label + String(width)
+
+//有一种更简单的把值转换成字符串的方法：把变量写到括号中，并且在括号之前写一个反斜杠：
+let apples = 3
+let oranges = 5
+let appleSummary = "I have \(apples) apples."
+let fruitSummary = "I have \(apples + oranges) pieces of fruit."
+```
+
+### 集合
+
+#### 数组
+
+```swift
+//创建数组的方式：
+var someInts = [Int]()
+
+var threeDoubles = Array(repeating: 0.0, count: 3)
+
+
+var anotherThreeDoubles = Array(repeating: 2.5, count: 3)
+// anotherThreeDoubles 被推断为 [Double]，等价于 [2.5, 2.5, 2.5]
+
+var sixDoubles = threeDoubles + anotherThreeDoubles
+// sixDoubles 被推断为 [Double]，等价于 [0.0, 0.0, 0.0, 2.5, 2.5, 2.5]
+
+var shoppingList: [String] = ["Eggs", "Milk"]
+
+
+//数组的遍历
+for item in shoppingList {
+    print(item)
+}
+//遍历同时拿到数组的索引和value
+for (index, value) in shoppingList. enumerated() {
+    print("Item \(String(index + 1)): \(value)")
+}
+
+```
+
+#### 集合（Sets）
+用来存储相同类型并且没有确定顺序的值
+当集合元素顺序不重要时或者希望确保每个元素只出现一次时可以使用集合而不是数组
+
+
+```swift
+
+var letters = Set<Character>()
+letters.insert("a")
+print("letters is of type Set<Character> with \(letters.count) items.")
+
+letters = []
+// letters 现在是一个空的 Set, 但是它依然是 Set<Character> 类型
+
+
+var favoriteGenres: Set<String> = ["Rock", "Classical", "Hip hop"]
+
+//数组字面量中的所有元素类型相同，Swift 可以推断出Set<String>作为favoriteGenres变量的正确类型
+var favoriteGenres: Set = ["Rock", "Classical", "Hip hop"]
+
+//remove(_:)方法去删除一个元素，如果该值是该Set的一个元素则删除该元素并且返回被删除的元素值，否则如果该Set不包含该值，则返回nil
+if let removedGenre = favoriteGenres.remove("Rock") {
+    print("\(removedGenre)? I'm over it.")
+} else {
+    print("I never much cared for that.")
+}
+// 打印 "Rock? I'm over it."
+
+
+```
+
+#### 字典
+
+
+```swift
+var namesOfIntegers = [Int: String]()
+
+namesOfIntegers[16] = "sixteen"
+// namesOfIntegers 现在包含一个键值对
+namesOfIntegers = [:]
+// namesOfIntegers 又成为了一个 [Int: String] 类型的空字典
+
+var airports: [String: String] = ["YYZ": "Toronto Pearson", "DUB": "Dublin"]
+
+var airports = ["YYZ": "Toronto Pearson", "DUB": "Dublin"]
+
+
+//遍历
+for (airportCode, airportName) in airports {
+    print("\(airportCode): \(airportName)")
+}
+//遍历key
+for airportCode in airports.keys {
+    print("Airport code: \(airportCode)")
+}
+// Airport code: YYZ
+// Airport code: LHR
+
+//遍历value
+for airportName in airports.values {
+    print("Airport name: \(airportName)")
+}
+// Airport name: Toronto Pearson
+// Airport name: London Heathrow
+
+
+```
+
+
+
+
+### 基本集合操作
+
+* 使用`intersection(_:)`方法根据两个集合中都包含的值创建的一个新的集合。
+* 使用`symmetricDifference(_:)`方法根据在一个集合中但不在两个集合中的值创建一个新的集合。
+* 使用`union(_:)`方法根据两个集合的值创建一个新的集合。
+* 使用`subtracting(_:)`方法根据不在该集合中的值创建一个新的集合。
+
+
+
+```swift
+let oddDigits: Set = [1, 3, 5, 7, 9]
+let evenDigits: Set = [0, 2, 4, 6, 8]
+let singleDigitPrimeNumbers: Set = [2, 3, 5, 7]
+
+oddDigits.union(evenDigits).sorted()
+// [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+oddDigits.intersection(evenDigits).sorted()
+// []
+oddDigits.subtracting(singleDigitPrimeNumbers).sorted()
+// [1, 9]
+oddDigits.symmetricDifference(singleDigitPrimeNumbers).sorted()
+// [1, 2, 9]
+```
+
+* 使用“是否相等”运算符(==)来判断两个集合是否包含全部相同的值。
+* 使用isSubset(of:) is子集 方法来判断一个集合中的值是否也被包含在另外一个集合中。
+* 使用isSuperset(of:) is超集 方法来判断一个集合中包含另一个集合中所有的值。
+* 使用isStrictSubset(of:)或者isStrictSuperset(of:)方法来判断一个集合是否是另外一个集合的子集合或者父集合并且两个集合并不相等。
+* 使用isDisjoint(with:) 是否没有交集  方法来判断两个集合是否不含有相同的值。
+
+
+```swift
+let houseAnimals: Set = ["🐶", "🐱"]
+let farmAnimals: Set = ["🐮", "🐔", "🐑", "🐶", "🐱"]
+let cityAnimals: Set = ["🐦", "🐭"]
+
+houseAnimals.isSubset(of: farmAnimals)
+// true
+farmAnimals.isSuperset(of: houseAnimals)
+// true
+farmAnimals.isDisjoint(with: cityAnimals)
+// true
+```
+
+
+
+
+### 元组（tuples）
+把多个值组合成一个复合值。元组内的值可以是任意类型，并不要求是相同类型。
+可以把任意顺序的类型组合成一个元组，这个元组可以包含所有类型。只要你想，你可以创建一个类型为 (Int, Int, Int) 或者 (String, Bool) 或者其他任何你想要的组合的元组
+
+作为函数返回值时，元组非常有用。一个用来获取网页的函数可能会返回一个 (Int, String) 元组来描述是否获取成功。和只能返回一个类型的值比较起来，一个包含两个不同类型值的元组可以让函数的返回信息更有用
+
+>元组在临时组织值的时候很有用，但是并不适合创建复杂的数据结构。如果你的数据结构并不是临时使用，请使用类或者结构体而不是元组
+
+```swift
+//一个类型为 (Int, String) 的元组
+let http404Error = (404, "Not Found")
+
+
+//将一个元组的内容分解（decompose）成单独的常量和变量
+let (statusCode, statusMessage) = http404Error
+print("The status code is \(statusCode)")
+// 输出 "The status code is 404"
+print("The status message is \(statusMessage)")
+// 输出 "The status message is Not Found"
+
+
+//如果你只需要一部分元组值，分解的时候可以把要忽略的部分用下划线（_）标记
+let (justTheStatusCode, _) = http404Error
+print("The status code is \(justTheStatusCode)")
+// 输出 "The status code is 404"
+
+//可以通过下标来访问元组中的单个元素，下标从零开始
+print("The status code is \(http404Error.0)")
+// 输出 "The status code is 404"
+print("The status message is \(http404Error.1)")
+// 输出 "The status message is Not Found"
+
+
+//可以在定义元组的时候给单个元素命名
+let http200Status = (statusCode: 200, description: "OK")
+//通过名字来获取这些元素的值
+print("The status code is \(http200Status.statusCode)")
+// 输出 "The status code is 200"
+print("The status message is \(http200Status.description)")
+// 输出 "The status message is OK"
+
+```
+
+### 可选类型optionals
+处理值可能缺失的情况
+
+>C 和 Objective-C 中并没有可选类型这个概念。最接近的是 Objective-C 中的一个特性，一个方法要不返回一个对象要不返回nil，nil表示“缺少一个合法的对象”。然而，这只对对象起作用——对于结构体，基本的 C 类型或者枚举类型不起作用。对于这些类型，Objective-C 方法一般会返回一个特殊值（比如NSNotFound）来暗示值缺失。这种方法假设方法的调用者知道并记得对特殊值进行判断。然而，Swift 的可选类型可以让你暗示任意类型的值缺失，并不需要一个特殊值。
+
+example:
+Swift 的 Int 类型有一种构造器，作用是将一个 String 值转换成一个 Int 值。然而，并不是所有的字符串都可以转换成一个整数。字符串 "123" 可以被转换成数字 123 ，但是字符串 "hello, world" 不行。
+
+```swift
+let possibleNumber = "123"
+let convertedNumber = Int(possibleNumber)
+// convertedNumber 被推测为类型 "Int?"， 或者类型 "optional Int"
+// 问号暗示包含的值是可选类型，也就是说可能包含 Int 值也可能不包含值。（不能包含其他任何值比如 Bool 值或者 String 值。只能是 Int 或者什么都没有。）
+```
+
+### nil
+给**可选变量**赋值为nil来表示它没有值
+
+```swift
+var serverResponseCode: Int? = 404
+// serverResponseCode 包含一个可选的 Int 值 404
+serverResponseCode = nil
+// serverResponseCode 现在不包含值
+```
+
+nil不能用于非可选的常量和变量。如果你的代码中有常量或者变量需要处理值缺失的情况，请把它们声明成对应的可选类型。
+
+>Swift 的 nil 和 Objective-C 中的 nil 并不一样。在 Objective-C 中，nil 是一个指向不存在对象的指针。在 Swift 中，nil 不是指针——它是一个确定的值，用来表示值缺失。任何类型的可选状态都可以被设置为 nil，不只是对象类型。
+
+
+强制解析
+在可选的名字后面加一个感叹号（!）来获取值
+
+```swift
+if convertedNumber != nil {
+    print("convertedNumber has an integer value of \(convertedNumber!).")
+}
+
+```
+可选绑定
+判断可选类型是否包含值，如果包含就把值赋给一个临时常量或者变量
+
+```swift
+if let constantName = someOptional {
+    statements
+}
+
+
+let possibleNumber = "123"
+
+//这段代码可以被理解为：
+//“如果 Int(possibleNumber) 返回的可选 Int 包含一个值，创建一个叫做 actualNumber 的新常量并将可选包含的值赋给它。”
+if let actualNumber = Int(possibleNumber) {
+    print("\'\(possibleNumber)\' has an integer value of \(actualNumber)")
+} else {
+    print("\'\(possibleNumber)\' could not be converted to an integer")
+}
+// 输出 "'123' has an integer value of 123"
+
+```
+
+### 隐式解析可选类型
+有时候在程序架构中，第一次被赋值之后，可以确定一个可选类型总会有值。在这种情况下，每次都要判断和解析可选值是非常低效的，因为可以确定它总会有值。
+
+这种类型的可选状态被定义为隐式解析可选类型（implicitly unwrapped optionals）。把想要用作可选的类型的后面的问号（String?）改成感叹号（String!）来声明一个**隐式解析可选类型**。
+
+隐式解析可选类型主要被用在 Swift 中类的构造过程中：
+
+
+```swift
+
+let possibleString: String? = "An optional string."
+let forcedString: String = possibleString! // 需要感叹号来获取值
+
+let assumedString: String! = "An implicitly unwrapped optional string."
+let implicitString: String = assumedString  // 不需要感叹号
+
+```
+
+
+
+## 控制流
+
+使用 if 和 switch 来进行条件操作，使用 for-in、 for、 while 和 repeat-while 来进行循环。包裹条件和循环变量括号可以省略，但是语句体的大括号是必须的。
+
+
+```swift
+let individualScores = [75, 43, 103, 87, 12]
+var teamScore = 0
+for score in individualScores {
+    if score > 50 {
+        teamScore += 3
+    } else {
+        teamScore += 1
+    }
+}
+print(teamScore)
+
+```
+
+
+使用 if 和 let 来处理值缺失的情况。这些值可由可选值来代表。一个可选的值是一个具体的值或者是 nil 以表示值缺失。在类型后面加一个问号来标记这个变量的值是可选的。
+
+
+```swift
+//？标记可选optional
+var optionalString: String? = "Hello"
+print(optionalString == nil)
+
+//var optionalName: String? = nil
+var optionalName: String? = "John Appleseed"
+var greeting = "Hello!"
+
+if let name = optionalName {
+    greeting = "Hello, \(name)"
+}else{
+    greeting = "Hello no name"
+}
+print(greeting)
+//Hello, John Appleseed
+
+```
+
+另一种处理可选值的方法是通过使用 ?? 操作符来提供一个默认值。如果可选值缺失的话，可以使用默认值来代替。
+
+```swift
+let nickName: String? = nil
+let fullName: String = "John Appleseed"
+let informalGreeting = "Hi \(nickName ?? fullName)"
+//Hi John Appleseed
+```
+
+switch 支持任意类型的数据以及各种比较操作——不仅仅是整数以及测试相等，
+default语句必须要有：
+运行 switch 中匹配到的子句之后，程序会退出 switch 语句，并不会继续向下运行，所以不需要在每个子句结尾写 break。
+```swift
+let vegetable = "red pepper"
+switch vegetable {
+case "celery":
+    print("Add some raisins and make ants on a log.")
+case "cucumber", "watercress":
+    print("That would make a good tea sandwich.")
+case let x where x.hasSuffix("pepper")://后缀
+    print("Is it a spicy \(x)?")
+default:
+    print("Everything tastes good in soup.")
+}
+//Is it a spicy red pepper?
+```
+
+
+
+fallthrough： C风格的贯穿的特性
+
+```swift
+let integerToDescribe = 5
+var description = "The number \(integerToDescribe) is"
+switch integerToDescribe {
+case 2, 3, 5, 7, 11, 13, 17, 19:
+    description += " a prime number, and also"
+    fallthrough
+default:
+    description += " an integer."
+}
+print(description)
+// 输出 "The number 5 is a prime number, and also an integer."
+```
+
+
+
+
+使用 for-in 来遍历字典，需要两个变量来表示每个键值对。字典是一个无序的集合，所以他们的键和值以任意顺序迭代结束
+
+```swift
+let interestingNumbers = [
+    "Prime": [2, 3, 5, 7, 11, 13],
+    "Fibonacci": [1, 1, 2, 3, 5, 8],
+    "Square": [1, 4, 9, 16, 25],
+]
+var largest = 0
+var largestKind:String = ""
+
+for (kind, numbers) in interestingNumbers {
+    print(kind)
+    print(numbers)
+    for number in numbers {
+        if number > largest {
+            largest = number
+            largestKind = kind
+        }
+    }
+}
+
+print("the largest is \(largest)")
+print("the largestKind is \(largestKind)")
+```
+
+
+使用 while 来重复运行一段代码直到不满足条件。
+循环条件也可以在结尾，repeat-while保证能至少循环一次。
+
+
+```swift
+var n = 2
+while n < 100 {
+    n = n * 2
+}
+print(n)
+
+var m = 2
+repeat {
+    m = m * 2
+} while m < 100
+print(m)
+
+//在循环中使用 ..< 来表示范围
+var total = 0
+for i in 0..<4 {
+    total += i
+}
+print(total)
+
+//使用 ..< 创建的范围不包含上界，如果想包含的话需要使用 ...
+var total_ = 0
+for i in 0...4 {
+    total_ += i
+}
+print(total_)
+
+```
+
+## 函数
+
+### 声明
+使用 func 来声明一个函数，使用名字和参数来调用函数。使用 -> 来指定函数返回值的类型
+
+```swift
+func greet(person: String, day: String) -> String {
+    return "Hello \(person), today is \(day)."
+}
+var result = greet(person:"Bob", day: "Tuesday")
+print(result)
+
+//默认情况下，函数使用它们的参数名称作为它们参数的标签
+//在参数名称前可以自定义参数标签，或者使用 _ 表示不使用参数标签。
+func greet(_ person: String, on day: String) -> String {
+    return "Hello \(person), today is \(day)."
+}
+var result2 = greet("John", on: "Wednesday")
+print(result2)
+
+```
+
+
+### 多重返回值函数 
+使用元组来让一个函数返回多个值
+该元组的元素可以用名称或数字来表示。
+
+
+```swift
+func calculateStatistics(scores: [Int]) -> (min: Int, max: Int, sum: Int) {
+    var min = scores[0]
+    var max = scores[0]
+    var sum = 0
+
+    for score in scores {
+        if score > max {
+            max = score
+        } else if score < min {
+            min = score
+        }
+        sum += score
+    }
+
+    return (min, max, sum)
+}
+let statistics = calculateStatistics(scores:[10, 10, 100, 1, 9])
+print(statistics.sum)
+print(statistics.2)
+print(statistics.max)
+print(statistics.1)
+print(statistics.min)
+print(statistics.0)
+```
+
+可选元组返回类型
+如果函数返回的元组类型有可能整个元组都“没有值”，你可以使用可选的（ optional ） 元组返回类型反映整个元组可以是nil的事实
+
+### 默认参数值
+
+```swift
+func someFunction(parameterWithoutDefault: Int, parameterWithDefault: Int = 12) {
+    // 如果你在调用时候不传第二个参数，parameterWithDefault 会值为 12 传入到函数体中。
+}
+someFunction(parameterWithoutDefault: 3, parameterWithDefault: 6) // parameterWithDefault = 6
+someFunction(parameterWithoutDefault: 4) // parameterWithDefault = 12
+```
+
+### 可变参数
+函数可以带有可变个数的参数，这些参数在函数内表现为数组的形式：
+
+
+```swift
+func sumOf(numbers: Int...) -> Int {
+    var sum = 0
+    for number in numbers {
+        sum += number
+    }
+    return sum
+}
+sumOf()
+sumOf(numbers: 42, 597, 12)
+```
+
+### 输入输出参数 inout
+在参数定义前加 `inout` 关键字
+一个输入输出参数有传入函数的值，这个值被函数修改，然后被传出函数，替换原来的值
+你只能传递变量给输入输出参数。你不能传入常量或者字面量，因为这些量是不能被修改的。
+
+当传入的参数作为输入输出参数时，需要在参数名前加 `&` 符，表示这个值可以被函数修改。类似C语言
+
+>注意 输入输出参数不能有默认值，而且可变参数不能用 `inout` 标记。
+
+
+```swift
+func swapTwoInts(_ a: inout Int, _ b: inout Int) {
+    let temporaryA = a
+    a = b
+    b = temporaryA
+}
+
+var someInt = 3
+var anotherInt = 107
+//注意参数前的&符号
+swapTwoInts(&someInt, &anotherInt)
+print("someInt is now \(someInt), and anotherInt is now \(anotherInt)")
+// 打印 "someInt is now 107, and anotherInt is now 3"
+```
+
+
+### 函数类型
+每个函数都有种特定的函数类型，函数的类型由函数的参数类型和返回类型组成
+
+
+
+```swift
+//这两个函数的类型是 (Int, Int) -> Int
+func addTwoInts(_ a: Int, _ b: Int) -> Int {
+    return a + b
+}
+func multiplyTwoInts(_ a: Int, _ b: Int) -> Int {
+    return a * b
+}
+
+
+//这个函数的类型是：() -> Void
+func printHelloWorld() {
+    print("hello, world")
+}
+```
+
+
+### 使用函数类型
+使用函数类型就像使用其他类型一样。
+例如，你可以定义一个类型为函数的常量或变量，并将适当的函数赋值给它：
+
+```swift
+//”定义一个叫做 mathFunction 的变量，类型是‘一个有两个 Int 型的参数并返回一个 Int 型的值的函数’，并让这个新变量指向 addTwoInts 函数”。
+var mathFunction: (Int, Int) -> Int = addTwoInts
+
+
+//现在，你可以用 mathFunction 来调用被赋值的函数了：
+print("Result: \(mathFunction(2, 3))")
+// Prints "Result: 5"
+
+```
+
+有相同匹配类型的不同函数可以被赋值给同一个变量，就像非函数类型的变量一样：
+
+```swift
+mathFunction = multiplyTwoInts
+print("Result: \(mathFunction(2, 3))")
+// Prints "Result: 6"
+```
+
+就像其他类型一样，当赋值一个函数给常量或变量时，你可以让 Swift 来推断其函数类型:
+
+```swift
+let anotherMathFunction = addTwoInts
+// anotherMathFunction 被推断为 (Int, Int) -> Int 类型
+```
+
+
+### 嵌套函数（nested functions）
+被嵌套的函数可以访问外侧函数的变量，你可以使用嵌套函数来重构一个太长或者太复杂的函数。
+
+```swift
+func returnFifteen() -> Int {
+    var y = 10
+    func add() {
+        y += 5
+    }
+    add()
+    return y
+}
+print("returnFifteen:")
+print(returnFifteen())
+```
+
+### 函数作为返回值
+可以用函数类型作为另一个函数的返回类型。你需要做的是在返回箭头`->`后写一个完整的函数类型。
+
+```swift
+//返回的addOne函数类型是 (Int) -> Int
+func makeIncrementer() -> ((Int) -> Int) {
+    func addOne(number: Int) -> Int {
+        return 1 + number
+    }
+    return addOne
+}
+//increment变量指向makeIncrementer函数返回的addOne函数
+var increment = makeIncrementer()
+//传入addOne函数的参数类型Int，返回Int
+increment(7)
+//8
+```
+
+另一个例子：
+
+```swift
+func stepForward(_ input: Int) -> Int {
+    return input + 1
+}
+func stepBackward(_ input: Int) -> Int {
+    return input - 1
+}
+
+//返回的函数类型(Int) -> Int
+func chooseStepFunction(backward: Bool) -> (Int) -> Int {
+    return backward ? stepBackward : stepForward
+}
+
+//现在可以用 chooseStepFunction(backward:) 来获得两个函数其中的一个
+let moveNearerToZero = chooseStepFunction(backward: true)
+// moveNearerToZero 现在指向 stepBackward() 函数。
+
+//输出4
+moveNearerToZero(5)
+
+```
+
+
+### 函数作为参数
+函数也可以当做参数传入另一个函数
+
+```swift
+//传入condition函数的类型是(Int) -> Bool)
+func hasAnyMatches(list: [Int], condition: (Int) -> Bool) -> Bool {
+    for item in list {
+        if condition(item) {
+            return true
+        }
+    }
+    return false
+}
+
+func lessThanTen(number: Int) -> Bool {
+    return number < 10
+}
+var numbers = [20, 19, 7, 12]
+//lessThanTen作为condition函数传入hasAnyMatches函数
+hasAnyMatches(list: numbers, condition: lessThanTen)
+//true
+```
+
+## 闭包（Closures）
+
+
+闭包是自包含的函数代码块，可以在代码中被传递和使用。Swift 中的闭包与 C 和 Objective-C 中的代码块（blocks）以及其他一些编程语言中的匿名函数比较相似。
+
+闭包可以捕获和存储其所在上下文中任意常量和变量的引用。被称为包裹常量和变量。 Swift 会为你管理在捕获过程中涉及到的所有内存操作。
+
+在函数章节中介绍的全局和嵌套函数实际上也是特殊的闭包，闭包采取如下三种形式之一：
+
+* 全局函数是一个有名字但不会捕获任何值的闭包
+* 嵌套函数是一个有名字并可以捕获其封闭函数域内值的闭包
+* 闭包表达式是一个利用轻量级语法所写的可以捕获其上下文中变量或常量值的匿名闭包
+
+Swift 的闭包表达式拥有简洁的风格，并鼓励在常见场景中进行语法优化，主要优化如下：
+
+* 利用上下文推断参数和返回值类型
+* 隐式返回单表达式闭包，即单表达式闭包可以省略 return 关键字
+* 参数名称缩写
+* 尾随闭包语法
+
+example:
+`sorted(by:) `方法接受一个闭包，该闭包函数需要传入与数组元素类型相同的两个值，并返回一个布尔类型值来表明当排序结束后传入的第一个参数排在第二个参数前面还是后面
+如果第一个参数值出现在第二个参数值前面，排序闭包函数需要返回true，反之返回false。
+该例子对一个 String 类型的数组进行排序，因此排序闭包函数类型需为 (String, String) -> Bool。
+
+```swift
+//如果第一个字符串（s1）大于第二个字符串（s2），backward(_:_:) 函数会返回 true，表示在sorted后的数组中 s1 应该出现在 s2 前
+func backward(_ s1: String, _ s2: String) -> Bool {
+    return s1 > s2
+}
+
+var reversedNames = names.sorted(by: backward)
+// reversedNames 为 ["Ewa", "Daniella", "Chris", "Barry", "Alex"]
+
+```
+
+
+### 闭包表达式语法
+闭包表达式参数 可以是 `in-out` 参数，但不能设定默认值。也可以使用具名的可变参数（译者注：但是如果可变参数不放在参数列表的最后一位的话，调用闭包的时时编译器将报错）。元组也可以作为参数和返回值。
+
+
+```swift
+//闭包的函数体部分由关键字in引入。该关键字表示闭包的参数和返回值类型定义已经完成，闭包函数体即将开始。
+{ (parameters) -> returnType in
+    statements
+}
+
+//下面的例子展示了之前 backward(_:_:) 函数对应的闭包表达式版本的代码
+reversedNames = names.sorted(by: { (s1: String, s2: String) -> Bool in
+    return s1 > s2
+})
+
+```
+
+### 根据上下文推断类型
+因为排序闭包函数是作为 sorted(by:) 方法的参数传入的，Swift 可以推断其参数和返回值的类型。sorted(by:) 方法被一个字符串数组调用，因此其参数必须是 (String, String) -> Bool 类型的函数。这意味着 (String, String) 和 Bool 类型并不需要作为闭包表达式定义的一部分。因为所有的类型都可以被正确推断，返回箭头（->）和围绕在参数周围的括号也可以被省略：
+
+
+```swift
+reversedNames = names.sorted(by: { s1, s2 in return s1 > s2 } )
+```
+
+实际上，通过内联闭包表达式构造的闭包作为参数传递给函数或方法时，总是能够推断出闭包的参数和返回值类型。这意味着闭包作为函数或者方法的参数时，你几乎不需要利用完整格式构造内联闭包
+
+### 单表达式闭包隐式返回
+
+单行表达式闭包可以通过省略 return 关键字来隐式返回单行表达式的结果
+
+如上版本的例子可以改写为：
+```swift
+reversedNames = names.sorted(by: { s1, s2 in s1 > s2 } )
+```
+
+### 参数名称缩写
+
+Swift 自动为内联闭包提供了参数名称缩写功能，你可以直接通过 `$0`,`$1`，`$2` 来顺序调用闭包的参数，以此类推。
+
+```swift
+//$0和$1表示闭包中第一个和第二个 String 类型的参数
+reversedNames = names.sorted(by: { $0 > $1 } )
+```
+
+### 运算符方法
+Swift 的 String 类型定义了关于大于号（>）的字符串实现，其作为一个函数接受两个 String 类型的参数并返回 Bool 类型的值。而这正好与 sorted(by:) 方法的参数需要的函数类型相符合。因此，你可以简单地传递一个大于号，Swift 可以自动推断出你想使用大于号的字符串函数实现：
+
+```swift
+reversedNames = names.sorted(by: >)
+```
+
+### 尾随闭包
+如果你需要将一个很长的闭包表达式作为最后一个参数传递给函数，可以使用尾随闭包来增强函数的可读性。尾随闭包是一个书写在函数括号之后的闭包表达式，函数支持将其作为最后一个参数调用。在使用尾随闭包时，你不用写出它的参数标签：
+
+```swift
+func someFunctionThatTakesAClosure(closure: () -> Void) {
+    // 函数体部分
+    closure()
+    print("函数体部分")
+}
+
+// 以下是不使用尾随闭包进行函数调用
+someFunctionThatTakesAClosure(closure: {
+    // 闭包主体部分
+    print("闭包主体部分11")
+})
+
+// 以下是使用尾随闭包进行函数调用，省略了闭包名closure
+someFunctionThatTakesAClosure() {
+    // 闭包主体部分
+    print("闭包主体部分22")
+}
+
+//输出
+//闭包主体部分11
+//函数体部分
+
+//闭包主体部分22
+//函数体部分
+```
+
+作为 sorted(by:) 方法参数的字符串排序闭包可以改写为：
+```swift
+reversedNames = names.sorted() { $0 > $1 }
+```
+如果闭包表达式是函数或方法的唯一参数，则当你使用尾随闭包时，你甚至可以把 () 省略掉：
+
+```swift
+reversedNames = names.sorted { $0 > $1 }
+```
+
+当闭包非常长以至于不能在一行中进行书写时，尾随闭包变得非常有用
+
+
+```swift
+let digitNames = [
+    0: "Zero", 1: "One", 2: "Two",   3: "Three", 4: "Four",
+    5: "Five", 6: "Six", 7: "Seven", 8: "Eight", 9: "Nine"
+]
+let numbers_new = [16, 58, 510]
+
+
+//在该例中，局部变量 number 的值由闭包中的 number 参数获得，因此可以在闭包函数体内对其进行修改，(闭包或者函数的参数总是常量)，闭包表达式指定了返回类型为 String，以表明存储映射值的新数组类型为 String。
+//map(_:) 为数组中每一个元素调用了一次闭包表达式。你不需要指定闭包的输入参数 number 的类型，因为可以通过要映射的数组类型进行推断,在这里就是int类型
+let strings = numbers_new.map {
+    (number) -> String in
+    var number = number
+    var output = ""
+    repeat {
+        output = digitNames[number % 10]! + output
+        number /= 10
+    } while number > 0
+    return output
+}
+print(strings)
+// strings 常量被推断为字符串类型数组，即 [String]
+// 其值为 ["OneSix", "FiveEight", "FiveOneZero"]
+```
+
+### 值捕获
+闭包可以在其被定义的上下文中捕获常量或变量。即使定义这些常量和变量的原作用域已经不存在，闭包仍然可以在闭包函数体内引用和修改这些值。
+Swift 中，可以捕获值的闭包的最简单形式是嵌套函数，也就是定义在其他函数的函数体内的函数。嵌套函数可以捕获其外部函数所有的参数以及定义的常量和变量。
+
+> 为了优化，如果一个值不会被闭包改变，或者在闭包创建后不会改变，Swift 可能会改为捕获并保存一份对值的拷贝。 Swift 也会负责被捕获变量的所有内存管理工作，包括释放不再需要的变量。
+
+example:
+嵌套函数`incrementer()` 并没有任何参数，但是在函数体内访问了 `runningTotal` 和 `amount` 变量。它从外围函数捕获了 `runningTotal` 和 `amount` 变量的**引用**。捕获引用保证了 `runningTotal` 和 `amount` 变量在调用完 `makeIncrementer` 后不会消失，并且保证了在下一次执行 `incrementer` 函数时，`runningTotal` 依旧存在。
+
+```swift
+func makeIncrementer(forIncrement amount: Int) -> () -> Int {
+    var runningTotal = 0
+    func incrementer() -> Int {
+        runningTotal += amount
+        return runningTotal
+    }
+    return incrementer
+}
+
+let incrementByTen = makeIncrementer(forIncrement: 10)
+incrementByTen();//10
+incrementByTen();//20
+incrementByTen();//30
+incrementByTen();//40
+```
+如果你创建了另一个 `incrementer`，它会有属于自己的引用，指向一个全新、独立的 `runningTotal` 变量：
+
+```swift
+let incrementBySeven = makeIncrementer(forIncrement: 7)
+incrementBySeven()
+// 返回的值为7
+```
+
+再次调用原来的 incrementByTen 会继续增加它自己的 runningTotal 变量，该变量和 incrementBySeven 中捕获的变量没有任何联系：
+
+
+```swift
+incrementByTen()
+// 返回的值为40
+```
+
+>如果你将闭包赋值给一个类实例的属性，并且该闭包通过访问该实例或其成员而捕获了该实例，你将在闭包和该实例间创建一个循环强引用。Swift 使用**捕获列表**来打破这种循环强引用.类似java匿名内部类强引用外部类实例引用。
+
+**闭包是引用类型**
+上面的例子中，`incrementBySeven` 和 `incrementByTen` 都是常量，但是这些常量指向的闭包仍然可以增加其捕获的变量的值。这是因为函数和闭包都是引用类型。
+
+无论你将函数或闭包赋值给一个常量还是变量，你实际上都是将常量或变量的值设置为对应函数或闭包的引用。上面的例子中，指向闭包的**引用** `incrementByTen` 是一个常量，而并非闭包内容本身。
+
+这也意味着如果你将闭包赋值给了两个不同的常量或变量，两个值都会指向同一个闭包：
+
+
+```swift
+let alsoIncrementByTen = incrementByTen
+alsoIncrementByTen()
+// 返回的值为50
+```
+
+
+
+### 捕获列表
+
+使用捕获列表，闭包捕获的将不是原始值的引用，而是在闭包内部生成了一个原始值的副本
+
+```swift
+var a = 0
+var b = 0
+//常规闭包，捕获外部引用
+let closure : () -> () = { print(a, b) }
+a = 3
+b = 5
+closure()// 3 5
+
+
+var c = 0
+var d = 0
+//[c,d]定义了捕获列表。
+//使用捕获列表，闭包捕获的将不是原始值的引用，而是在闭包内部生成了一个原始值的copy副本
+let anotherClosure : () -> () = {  [c, d]  in
+    print(c, d)
+}
+
+c = 3
+d = 7
+anotherClosure()// 0 0
+
+```
+
+### 逃逸闭包
+
+Swift中的闭包有两种：逃逸闭包和非逃逸闭包。
+逃逸闭包表示闭包将在函数返回之后执行；而非逃逸闭包则表示在函数返回前执行，即函数内部执行。
+
+有2种方法可以让闭包逃逸其所处的函数:
+
+* 异步执行:如果你在一个调度队列中异步执行闭包, 那么这个队列将会对这个闭包强引用, 你不知道闭包什么时候会执行, 也无法保证在函数执行结束之后闭包会执行完毕
+
+* 存储:将闭包作为全局的变量或者属性存储, 意味着闭包同样可以逃逸
+
+
+Swift3.0中：所有的闭包都默认为非逃逸闭包。如果需要表示逃逸闭包，则使用`@escaping`关键字来修饰闭包.
+注意：将一个闭包标记为 `@escaping` 意味着你必须在闭包中显式地引用。
+
+
+```swift
+//声明闭包数组存储逃逸闭包
+var completionHandlers: [() -> Void] = []
+//@escaping修饰逃逸闭包
+func someFunctionWithEscapingClosure(completionHandler: @escaping () -> Void) {
+    completionHandlers.append(completionHandler)
+}
+
+//非逃逸闭包参数
+func someFunctionWithNonescapingClosure(closure: () -> Void) {
+    closure()
+}
+
+class SomeClass {
+    var x = 10
+    func doSomething() {
+        //逃逸闭包为参数的函数，闭包将在函数返回之后执行
+        someFunctionWithEscapingClosure { self.x = 100 }
+        //非逃逸闭包为参数的函数，在函数返回前执行
+        someFunctionWithNonescapingClosure { x = 200 }
+    }
+}
+
+let instance = SomeClass()
+instance.doSomething()
+print(instance.x)
+// 输出 "200"
+
+
+completionHandlers[0]()
+//此时逃逸闭包才会执行
+print(instance.x)
+// 输出 "100"
+```
+第一个print输出200，因为当调用`doSomethig`的时候，`someFunctionWithNonescapingClosure`会直接调用闭包`{x = 200}`,此时`instance.x`变成200
+当`completionHandlers[0]()`之后，`someFunctionWithEscapingClosure`传入的逃逸闭包才会真正执行，此时`instance.x`变成100
+可以看到，**逃逸闭包引用外部实例变量时必须显示指明self**，而普通的闭包可以直接使用x
+
+显然，逃逸闭包可以用于**异步的回调处理**。
+
+### 自动闭包
+
+自动闭包是一种自动创建的闭包，用于包装传递给函数作为参数的表达式。
+这种闭包不接受任何参数，当它被调用的时候，会返回被包装在其中的表达式的值。
+这种便利语法让你能够省略闭包的花括号，用一个普通的表达式来代替显式的闭包。
+
+我们经常会调用采用自动闭包的函数，但是很少去实现这样的函数
+
+
+自动闭包让你能够延迟求值，因为直到你调用这个闭包，代码段才会被执行。延迟求值对于那些有副作用（Side Effect）和高计算成本的代码来说是很有益处的，因为它使得你能控制代码的执行时机
+
+
+```swift
+var customersInLine = ["Chris", "Alex", "Ewa", "Barry", "Daniella"]
+print(customersInLine.count)
+// 打印出 "5"
+
+//请注意，customerProvider 的类型不是 String，而是 () -> String
+let customerProvider = { customersInLine.remove(at: 0) }
+print(customersInLine.count)
+// 打印出 "5"
+
+//调用这个闭包才会运行这个闭包
+print("Now running closure \(customerProvider())!")
+// Prints "Now serving Chris!"
+print(customersInLine.count)
+// 打印出 "4"
+
+
+// customersInLine is ["Alex", "Ewa", "Barry", "Daniella"]
+func serve(customer customerProvider: () -> String) {
+    print("Now running \(customerProvider())!")
+}
+
+serve(customer: { customersInLine.remove(at: 0) } )
+// 打印出 "Now serving Alex!"
+```
+
+上面的 `serve(customer:)` 函数接受一个返回顾客名字的显式的闭包。下面这个版本的 `serve(customer:)` 完成了相同的操作，不过它并没有接受一个显式的闭包，而是通过将参数标记为 `@autoclosure` 来接收一个自动闭包。现在你可以将该函数当作接受 String 类型参数（而非闭包）的函数来调用。`customerProvider` **参数将自动转化为一个闭包**，因为该参数被标记了`@autoclosure` 特性。
+
+
+```swift
+// customersInLine is ["Ewa", "Barry", "Daniella"]
+func serve(customer customerProvider: @autoclosure () -> String) {
+    print("Now serving \(customerProvider())!")
+}
+serve(customer: customersInLine.remove(at: 0))
+// 打印 "Now serving Ewa!"
+
+```
+如果你想让一个自动闭包可以“逃逸”，则应该同时使用 `@autoclosure` 和 `@escaping` 属性
+
+```swift
+// customersInLine i= ["Barry", "Daniella"]
+var customerProviders: [() -> String] = []
+func collectCustomerProviders(_ customerProvider: @autoclosure @escaping () -> String) {
+    customerProviders.append(customerProvider)
+}
+collectCustomerProviders(customersInLine.remove(at: 0))
+collectCustomerProviders(customersInLine.remove(at: 0))
+
+print("Collected \(customerProviders.count) closures.")
+// 打印 "Collected 2 closures."
+for customerProvider in customerProviders {
+    print("Now serving \(customerProvider())!")
+}
+// 打印 "Now serving Barry!"
+// 打印 "Now serving Daniella!"
+
+```
+在上面的代码中，`collectCustomerProviders(_:)` 函数并没有调用传入的 `customerProvider` 闭包，而是将闭包追加到了 `customerProviders` 数组中。这个数组定义在函数作用域范围外，这意味着数组内的闭包能够在函数返回之后被调用。因此，`customerProvider` 参数必须允许“逃逸”出函数作用域。
+
+
+
+
+## 对象和类
+
+Swift 中类和结构体有很多共同点。共同处在于：
+
+* 定义属性用于存储值
+* 定义方法用于提供功能
+* 定义下标操作使得可以通过下标语法来访问实例所包含的值
+* 定义构造器用于生成初始化值
+* 通过扩展以增加默认实现的功能
+* 实现协议以提供某种标准功能
+
+与结构体相比，类还有如下的附加功能：
+
+* 继承 允许一个类继承另一个类的特征
+* 类型转换 允许在运行时检查和解释一个类实例的类型
+* 析构器 允许一个类实例释放任何其所被分配的资源
+* 引用计数 允许对一个类的多次引用
+
+最大的不同点：
+* 结构体总是通过被复制的方式在代码中传递，不使用引用计数。
+
+
+### 类的定义
+```swift
+//定义
+class Shape {
+    var numberOfSides = 0
+    func simpleDescription() -> String {
+        return "A shape with \(numberOfSides) sides."
+    }
+}
+//创建一个类的实例
+var shape = Shape()
+shape.numberOfSides = 7
+var shapeDescription = shape.simpleDescription()
+
+```
+
+### 构造函数
+
+与 Objective-C 中的构造器不同，Swift 的构造器无需返回值，它们的主要任务是保证新实例在第一次使用前完成正确的初始化。
+
+使用 init 来创建一个构造函数
+
+```swift
+class NamedShape {
+    var numberOfSides: Int = 0
+    var name: String
+    var otherName: String
+    
+    //构造器
+    init(name: String) {
+        // self 被用来区别实例变量 name 和构造器的参数 name
+        self.name = name
+    }
+    //重载构造器
+    init(otherName: String) {
+        // self 被用来区别实例变量 name 和构造器的参数 name
+        self.otherName = name
+    }
+    
+    func simpleDescription() -> String {
+        return "A \(name) shape with \(numberOfSides) sides."
+    }
+    //如果你需要在删除对象之前进行一些清理工作，使用 deinit 创建一个析构函数
+    deinit {
+        print("deintied!")
+    }
+
+}
+
+var nameShape = NamedShape(name:"uuuu")
+nameShape.numberOfSides = 9
+var nameShapeDescription = nameShape.simpleDescription()
+//"A uuuu shape with 9 sides."
+```
+
+>注意
+当你为存储型属性设置默认值或者在构造器中为其赋值时，它们的值是被直接设置的，不会触发任何属性观察者。
+
+对于类的实例来说，它的常量属性只能在定义它的类的构造过程中修改；不能在子类中修改。
+
+
+
+```swift
+//结构体构造器
+struct Fahrenheit {
+    var temperature: Double
+    init() {
+        temperature = 32.0
+    }
+}
+var f = Fahrenheit()
+print("The default temperature is \(f.temperature)° Fahrenheit")
+// 打印 "The default temperature is 32.0° Fahrenheit"
+
+```
+
+
+**默认构造器**
+如果结构体或类的所有属性都有默认值，同时没有自定义的构造器，那么 Swift 会给这些结构体或类提供一个默认构造器（default initializers）。这个默认构造器将简单地创建一个所有属性值都设置为默认值的实例。
+
+```swift
+class ShoppingListItem {
+    var name: String?
+    var quantity = 1
+    var purchased = false
+}
+var item = ShoppingListItem()
+```
+如果结构体没有提供自定义的构造器，它们将自动获得一个逐一成员构造器，即使结构体的存储型属性没有默认值。
+
+```swift
+struct Size {
+    var width = 0.0, height = 0.0
+}
+let twoByTwo = Size(width: 2.0, height: 2.0)
+```
+
+必要构造器
+在类的构造器前添加`required`修饰符表明所有该类的子类都必须实现该构造器：
+
+```swift
+class SomeClass {
+    required init() {
+        // 构造器的实现代码
+    }
+}
+
+//子类重写父类的必要构造器时，必须在子类的构造器前也添加required修饰符，表明该构造器要求也应用于继承链后面的子类
+class SomeSubclass: SomeClass {
+    required init() {
+        // 构造器的实现代码
+    }
+}
+
+```
+
+另一种情况：
+```swift
+//协议声明构造函数
+protocol SomeProtocol {
+    init(someParameter: Int)
+}
+//实现该协议，必须为构造器实现标上 required 修饰符
+class SomeClass: SomeProtocol {
+    required init(someParameter: Int) {
+        // 这里是构造器的实现部分
+    }
+}
+
+```
+
+>注意
+如果类已经被标记为 final，那么不需要在协议构造器的实现中使用 required 修饰符，因为 final 类不能有子类。关于 final 修饰符的更多内容，
+
+### 析构过程
+析构器只适用于类类型，当一个类的实例被释放之前，析构器会被立即调用。析构器用关键字`deinit`来标示，类似于构造器要用`init`来标示。
+通常当你的实例被释放时不需要手动地去清理。但是，当使用自己的资源时，你可能需要进行一些额外的清理。例如，如果创建了一个自定义的类来打开一个文件，并写入一些数据，你可能需要在类实例被释放之前手动去关闭该文件。
+
+```swift
+deinit {
+    // 执行析构过程
+}
+```
+析构器是在实例释放发生前被自动调用。你不能主动调用析构器。子类继承了父类的析构器，并且在子类析构器实现的最后，父类的析构器会被自动调用。即使子类没有提供自己的析构器，父类的析构器也同样会被调用。
+
+所以析构器可以访问实例的所有属性，并且可以根据那些属性可以修改它的行为（比如查找一个需要被关闭的文件
+
+### 属性
+
+#### 常量结构体的存储属性
+如果创建了一个结构体的实例并将其赋值给一个常量，则无法修改该实例的任何属性，即使有属性被声明为变量也不行：
+
+```swift
+let rangeOfFourItems = FixedLengthRange(firstValue: 0, length: 4)
+// 该区间表示整数0，1，2，3
+rangeOfFourItems.firstValue = 6
+// 尽管 firstValue 是个变量属性，这里还是会报错
+```
+
+这种行为是由于结构体（struct）属于值类型。当值类型的实例被声明为常量的时候，它的所有属性也就成了常量。
+
+属于引用类型的类（class）则不一样。把一个引用类型的实例赋给一个常量后，仍然可以修改该实例的变量属性。
+
+#### 延迟存储属性
+延迟存储属性是指当第一次被调用的时候才会计算其初始值的属性。
+在属性声明前使用 `lazy` 来标示一个延迟存储属性。
+
+>注意
+必须将延迟存储属性声明成变量（使用 var 关键字），因为属性的初始值可能在实例构造完成之后才会得到。而常量属性在构造过程完成之前必须要有初始值，因此无法声明成延迟属性。
+
+延迟属性很有用，当属性的值依赖于在实例的构造过程结束后才会知道影响值的外部因素时，或者当获得属性的初始值需要复杂或大量计算时，可以只在需要的时候计算它。
+
+
+
+```swift
+class DataImporter {
+    /* DataImporter 是一个负责将外部文件中的数据导入的类。 这个类的初始化会消耗不少时间。 */
+    var fileName = "data.txt"
+    // 这里会提供数据导入功能
+}
+
+class DataManager {
+    lazy var importer = DataImporter()
+    var data = [String]()
+    // 这里会提供数据管理功能
+}
+
+let manager = DataManager()
+manager.data.append("Some data")
+manager.data.append("Some more data")
+// DataImporter 实例的 importer 属性还没有被创建
+
+print(manager.importer.fileName)
+// DataImporter 实例的 importer 属性现在被创建了
+// 输出 "data.txt”
+```
+
+>注意
+如果一个被标记为 `lazy` 的属性在没有初始化时就同时被多个线程访问，则无法保证该属性只会被初始化一次。
+
+
+
+#### 计算属性
+除存储属性外，类、结构体和枚举可以定义计算属性。计算属性不直接存储值，而是提供一个 `getter` 和一个可选的 `setter`，来间接获取和设置其他属性或变量的值。
+
+
+```swift
+class EquilateralTriangle: NamedShape {
+    var sideLength: Double = 0.0
+    
+    init(sideLength: Double, name: String) {
+        self.sideLength = sideLength
+        super.init(name: name)
+        numberOfSides = 3
+    }
+    
+    //getter 和 setter
+    //计算属性的 setter 没有定义表示新值的参数名，则可以使用默认名称 newValue
+    var perimeter: Double {
+        get {
+            return 3.0 * sideLength
+        }
+        set {
+            sideLength = newValue / 3.0
+        }
+        /*自定义新值的名字
+        set(newYourValue) {
+            origin.x = newCenter.x - (size.width / 2)
+            origin.y = newCenter.y - (size.height / 2)
+        }
+        */
+    }
+    
+    override func simpleDescription() -> String {
+        return "An equilateral triangle with sides of length \(sideLength)."
+    }
+}
+var triangle = EquilateralTriangle(sideLength: 3.1, name: "a triangle")
+print(triangle.perimeter)//9.3 = 3* sideLength
+triangle.perimeter = 9.9
+print(triangle.sideLength)//3.3 = newValue / 3.0
+
+```
+
+注意 EquilateralTriangle 类的构造器执行了三步：
+
+* 设置子类声明的属性值
+* 调用父类的构造器
+* 改变父类定义的属性值。其他的工作比如调用方法、getters 和 setters 也可以在这个阶段完成。
+
+
+**只读计算属性**
+只有 `getter` 没有 `setter` 的计算属性就是只读计算属性。
+只读计算属性总是返回一个值，可以通过点运算符访问，但不能设置新的值。
+
+>注意
+必须使用 `var` 关键字定义计算属性，包括只读计算属性，因为它们的值不是固定的。`let` 关键字只用来声明常量属性，表示初始化后再也无法修改的值。
+
+只读计算属性的声明可以去掉 `get` 关键字和花括号：
+
+```swift
+struct Cuboid {
+    var width = 0.0, height = 0.0, depth = 0.0
+    var volume: Double {
+        return width * height * depth
+    }
+}
+let fourByFiveByTwo = Cuboid(width: 4.0, height: 5.0, depth: 2.0)
+print("the volume of fourByFiveByTwo is \(fourByFiveByTwo.volume)")
+// 打印 "the volume of fourByFiveByTwo is 40.0"
+```
+
+#### 属性观察器
+
+`willSet`和`didSet`这两个特性来监视属性的除初始化之外的属性值变化
+
+可以为**除了延迟存储属性之外**的其他存储属性添加属性观察器，也可以通过重写属性的方式为继承的属性（包括存储属性和计算属性）添加属性观察器。
+你不必为非重写的计算属性添加属性观察器，因为可以通过它的 `setter` 直接监控和响应值的变化。
+
+* `willSet` 在新的值被设置之前调用
+* `didSet` 在新的值被设置之后立即调用
+
+`willSet` 观察器会将新的属性值作为常量参数传入，在 `willSet` 的实现代码中可以为这个参数指定一个名称，如果不指定则参数仍然可用，这时使用默认名称 `newValue` 表示。
+
+同样，`didSet` 观察器会将旧的属性值作为参数传入，可以为该参数命名或者使用默认参数名 `oldValue`。如果在 `didSet` 方法中再次对该属性赋值，那么新值会覆盖旧的值。
+
+```swift
+class People 
+{
+    //普通属性
+    var firstName:String = ""
+    var lastName:String  = ""
+    var nickName:String  = ""
+    
+    //计算属性
+    var fullName:String
+    {
+        get
+        {
+            return nickName + " " + firstName + " " + lastName
+        }
+    }
+    
+    //带属性监视器的普通属性
+    var age:Int = 0
+    {
+        //在age属性变化前.   新值默认名称newValue
+        willSet
+        {
+            print("Will set an new value \(newValue) to age")
+        }
+        //在age属性发生变化后，    旧值默认参数名oldValue
+        didSet
+        {
+            print("age filed changed form \(oldValue) to \(age)")
+            if age<10
+            {
+                nickName = "Little"
+            }else
+            {
+                nickName = "Big"
+            }
+        }
+    }
+    
+    func toString() -> String
+    {
+        return "Full Name: \(fullName) " + ", Age: \(age) "
+    }
+    
+}
+
+var me = People()
+me.firstName = "Zhang"
+me.lastName  = "San"
+me.age = 20
+
+print(me.toString())
+
+/*程序输出
+Will set an new value 20 to age
+age filed changed form 0 to 20
+Full Name: Big Zhang San , Age: 20
+*/
+
+```
+>注意
+父类的属性在子类的构造器中被赋值时，它在父类中的 `willSet` 和 `didSet` 观察器会被调用，随后才会调用子类的观察器。在父类初始化方法调用之前，子类给属性赋值时，观察器不会被调用。 
+
+>如果将属性通过 in-out 方式传入函数，willSet 和 didSet 也会调用。这是因为 in-out 参数采用了拷入拷出模式：即在函数内部使用的是参数的 copy，函数结束后，又对参数重新赋值
+
+
+
+#### 全局变量和局部变量
+计算属性和属性观察器所描述的功能也可以用于全局变量和局部变量。
+全局变量是在函数、方法、闭包或任何类型之外定义的变量。
+局部变量是在函数、方法或闭包内部定义的变量。
+
+>注意
+全局的常量或变量都是延迟计算的，跟延迟存储属性相似，不同的地方在于，全局的常量或变量不需要标记lazy修饰符。
+局部范围的常量或变量从不延迟计算。
+
+
+
+处理变量的可选值时，你可以在操作（比如方法、属性和子脚本）之前加 ?。如果 ? 之前的值是 nil，? 后面的东西都会被忽略，并且整个表达式返回 nil。否则，? 之后的东西都会被运行。在这两种情况下，整个表达式的值也是一个可选值。
+
+
+```swift
+var optionalSquare: Square? = Square(sideLength: 2.5, name: "optional square")
+//optionalSquare = nil
+let sideLength = optionalSquare?.sideLength
+```
+
+#### 类型属性
+为类型本身定义属性，无论创建了多少个该类型的实例，这些属性都只有唯一一份。这种属性就是类型属性。
+
+存储型类型属性可以是变量或常量，计算型类型属性跟实例的计算型属性一样只能定义成变量属性。
+
+
+>注意
+跟实例的存储型属性不同，必须给存储型类型属性指定默认值，因为类型本身没有构造器，也就无法在初始化过程中使用构造器给类型属性赋值。
+存储型类型属性是延迟初始化的，它们只有在第一次被访问的时候才会被初始化。即使它们被多个线程同时访问，系统也保证只会对其进行一次初始化，并且不需要对其使用 `lazy` 修饰符。
+
+
+**类型属性语法**
+在 C 或 Objective-C 中，与某个类型关联的静态常量和静态变量，是作为全局（global）静态变量定义的。但是在 Swift 中，类型属性是作为类型定义的一部分写在类型最外层的花括号内，因此它的作用范围也就在类型支持的范围内。
+
+使用关键字 `static` 来定义类型属性。在为类定义计算型类型属性时，可以改用关键字 `class` 来支持子类对父类的实现进行重写
+
+
+```swift
+struct SomeStructure {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 1
+    }
+}
+enum SomeEnumeration {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 6
+    }
+}
+class SomeClass_ {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 27
+    }
+    //关键字class支持子类对父类的实现进行重写
+    class var overrideableComputedTypeProperty: Int {
+        return 107
+    }
+}
+print(SomeStructure.storedTypeProperty)
+// 打印 "Some value."
+SomeStructure.storedTypeProperty = "Another value."
+print(SomeStructure.storedTypeProperty)
+// 打印 "Another value.”
+print(SomeEnumeration.computedTypeProperty)
+// 打印 "6"
+print(SomeClass_.computedTypeProperty)
+// 打印 "27"
+```
+
+
+### 方法
+
+#### 在实例方法中修改 值类型 的属性
+
+**默认情况下，值类型的属性不能在它的实例方法中被修改。**
+
+结构体和枚举是值类型。
+
+但是你可以为这个方法选择可变(`mutating`)行为，然后就可以从其方法内部改变它的属性。方法还可以给它隐含的self属性赋予一个全新的实例，这个新实例在方法结束时会替换现存实例。
+
+```swift
+struct Point_ {
+    var x = 0.0, y = 0.0
+    mutating func moveByX(_ deltaX: Double, _ deltaY: Double) {
+        x += deltaX
+        y += deltaY
+    }
+}
+var somePoint = Point_(x: 1.0, y: 1.0)
+somePoint.moveByX(2.0,3.0)
+print("The point is now at (\(somePoint.x), \(somePoint.y))")
+// 打印 "The point is now at (3.0, 4.0)"
+```
+不能在常量结构体类型（a constant of structure type）上调用可变方法，因为其属性不能被改变，即使属性是变量属性
+
+```swift
+let fixedPoint = Point(x: 3.0, y: 3.0)
+fixedPoint.moveByX(2.0, y: 3.0)
+// 这里将会报告一个错误
+```
+
+在可变方法中给 `self` 赋值
+可变方法能够赋给隐含属性`self`一个全新的实例。上面Point的例子可以用下面的方式改写：
+
+```swift
+struct Point {
+    var x = 0.0, y = 0.0
+    mutating func moveBy(x deltaX: Double, y deltaY: Double) {
+        self = Point(x: x + deltaX, y: y + deltaY)
+    }
+}
+
+```
+
+#### 类型方法
+
+在方法的`func`关键字之前加上关键字`static`，来指定类型方法。类还可以用关键字`class`来允许子类重写父类的方法实现。
+
+>注意
+在 Objective-C 中，你只能为 Objective-C 的类类型（classes）定义类型方法（type-level methods）。在 Swift 中，你可以为所有的类、结构体和枚举定义类型方法。每一个类型方法都被它所支持的类型显式包含。
+
+
+
+## 下标
+下标可以定义在类、结构体和枚举中，是访问集合，列表或序列中元素的快捷方式
+一个类型可以定义多个下标，通过不同索引类型进行重载
+
+定义下标使用`subscript`关键字，指定一个或多个输入参数和返回类型；与实例方法不同的是，下标可以设定为读写或只读。这种行为由 `getter` 和 `setter` 实现，有点类似计算型属性：
+
+```swift
+subscript(index: Int) -> Int {
+    get {
+      // 返回一个适当的 Int 类型的值
+    }
+
+    set(newValue) {
+      // 执行适当的赋值操作
+    }
+}
+
+//如同只读计算型属性，可以省略只读下标的get关键字：
+subscript(index: Int) -> Int {
+    // 返回一个适当的 Int 类型的值
+}
+
+```
+
+example:
+
+```swift
+struct Matrix {
+    let rows: Int, columns: Int
+    //Double类型的值的数组
+    var grid: [Double]
+    
+    init(rows: Int, columns: Int) {
+        self.rows = rows
+        self.columns = columns
+        grid = Array(count: rows * columns, repeatedValue: 0.0)
+    }
+    
+    func indexIsValid(row: Int, column: Int) -> Bool {
+        return row >= 0 && row < rows && column >= 0 && column < columns
+    }
+    
+    subscript(row: Int, column: Int) -> Double {
+        get {
+            assert(indexIsValid(row: row, column: column), "Index out of range")
+            return grid[(row * columns) + column]
+        }
+        set {
+            assert(indexIsValid(row: row, column: column), "Index out of range")
+            grid[(row * columns) + column] = newValue
+        }
+    }
+}
+
+var matrix = Matrix(rows: 3, columns: 3)
+matrix[1,1] = 102;
+print(matrix)
+//Matrix(rows: 3, columns: 3, grid: [0.0, 0.0, 0.0, 0.0, 102.0, 0.0, 0.0, 0.0, 0.0])
+```
+
+## 继承
+
+
+```swift
+//基类
+class Vehicle {
+    var currentSpeed = 0.0
+    var description: String {
+        return "traveling at \(currentSpeed) miles per hour"
+    }
+    func makeNoise() {
+        // 什么也不做-因为车辆不一定会有噪音
+    }
+}
+
+//子类
+class Bicycle: Vehicle {
+    var hasBasket = false
+}
+
+//重写 override 关键字
+class Train: Vehicle {
+    override func makeNoise() {
+        print("Choo Choo")
+    }
+}
+
+```
+防止重写
+把方法，属性或下标标记为`final`来防止它们被重写
+通过在关键字`class`前添加`final`修饰符（final class）来将整个类标记为 `final` 的。这样的类是不可被继承的。
+
+
+
+## 枚举和结构体
+
+所有的结构体和枚举类型都是值类型
+这意味着它们的实例，以及实例中所包含的任何值类型属性，在代码中传递的时候都会被复制。
+
+### 枚举类的定义：
+```swift
+enum Rank: Int {
+    //起始的值=10
+    case ace = 10
+    case two, three, four, five, six, seven, eight, nine, ten
+    case jack, queen, king
+    //定义方法
+    func simpleDescription() -> String {
+        switch self {
+        case .ace:
+            return "ace"
+        case .jack:
+            print("here")
+            return "jack"
+        case .queen:
+            return "queen"
+        case .king:
+            return "king"
+        default:
+            return String(self.rawValue)
+        }
+    }
+}
+let ace = Rank.jack//ace = jack
+let aceRawValue = ace.rawValue//ace = 20
+print(ace.simpleDescription())
+//here
+//jack
+```
+
+使用 init?(rawValue:) 初始化构造器来创建一个带有原始值的枚举成员。如果存在与原始值相应的枚举成员就返回该枚举成员，否则就返回 nil
+
+```swift
+if let convertedRank = Rank(rawValue: 11) {
+    let threeDescription = convertedRank.simpleDescription()
+}
+```
+
+
+如果没有比较有意义的原始值，你就不需要提供原始值
+```swift
+enum Suit {
+    case spades, hearts, diamonds, clubs
+    func simpleDescription() -> String {
+        switch self {
+        case .spades:
+            return "spades"
+        case .hearts:
+            return "hearts"
+        case .diamonds:
+            return "diamonds"
+        case .clubs:
+            return "clubs"
+        }
+    }
+}
+let hearts = Suit.hearts
+let heartsDescription = hearts.simpleDescription()
+```
+
+注意在上面的例子中用了两种方式引用 hearts 枚举成员：给 hearts 常量赋值时，枚举成员 Suit.hearts 需要用全名来引用，因为常量没有显式指定类型。在 switch 里，枚举成员使用缩写 .hearts 来引用，因为 self 已经是一个 suit 类型，在已知变量类型的情况下可以使用缩写。
+
+
+### 结构体
+使用 struct 来创建一个结构体。
+结构体和类有很多相同的地方，比如方法和构造器。它们之间最大的一个区别就是结构体是传值，类是传引用
+
+
+```swift
+struct MarksStruct {
+   var mark: Int
+
+   init(mark: Int) {
+      self.mark = mark
+   }
+}
+var aStruct = MarksStruct(mark: 98)
+var bStruct = aStruct // aStruct 和 bStruct 是使用相同值的结构体！
+bStruct.mark = 97
+print(aStruct.mark) // 98
+print(bStruct.mark) // 97
+
+```
+
+结构体类型的成员逐一构造器
+所有结构体都有一个自动生成的成员逐一构造器，用于初始化新结构体实例中成员的属性。新实例中各个属性的初始值可以通过属性的名称传递到成员逐一构造器之中：
+
+
+```swift
+let vga = Resolution(width:640, height: 480)
+```
+与结构体不同，类实例没有默认的成员逐一构造器
+
+
+### 类和结构体的选择
+按照通用的准则，当符合一条或多条以下条件时，请考虑构建结构体：
+
+* 该数据结构的主要目的是用来封装少量相关简单数据值。
+* 有理由预计该数据结构的实例在被赋值或传递时，封装的数据将会被拷贝而不是被引用。
+* 该数据结构中储存的值类型属性，也应该被拷贝，而不是被引用。
+* 该数据结构不需要去继承另一个既有类型的属性或者行为。
+
+举例来说，以下情境中适合使用结构体：
+
+* 几何形状的大小，封装一个width属性和height属性，两者均为Double类型。
+* 一定范围内的路径，封装一个start属性和length属性，两者均为Int类型。
+* 三维坐标系内一点，封装x，y和z属性，三者均为Double类型。
+
+在所有其它案例中，定义一个类，生成一个它的实例，并通过引用来管理和传递。实际中，这意味着绝大部分的自定义数据构造都应该是类，而非结构体。
+
+
+**字符串、数组、和字典类型的赋值与复制行为**
+
+Swift 中，许多基本类型，诸如`String`，`Array`和`Dictionary`类型均以结构体的形式实现。这意味着被赋值给新的常量或变量，或者被传入函数或方法中时，它们的值会被拷贝。
+
+Objective-C 中`NSString`，`NSArray`和`NSDictionary`类型均以类的形式实现，而并非结构体。它们在被赋值或者被传入函数或方法时，不会发生值拷贝，而是传递现有实例的引用。
+
+>注意:
+以上是对字符串、数组、字典的“拷贝”行为的描述。在你的代码中，拷贝行为看起来似乎总会发生。然而，Swift 在幕后只在绝对必要时才执行实际的拷贝。Swift 管理所有的值拷贝以确保性能最优化，所以你没必要去回避赋值来保证性能最优化。
+
+
+## 自动引用计数
+
+Swift 使用自动引用计数（ARC）机制来跟踪和管理你的应用程序的内存
+
+>注意
+引用计数仅仅应用于类的实例。结构体和枚举类型是值类型，不是引用类型，也不是通过引用的方式存储和传递。
+
+为了确保使用中的实例不会被销毁，ARC 会跟踪和计算每一个实例正在被多少属性，常量和变量所引用。哪怕实例的引用数为1，ARC都不会销毁这个实例
+
+example:
+```swift
+class Person {
+    let name: String
+    init(name: String) {
+        self.name = name
+        print("\(name) is being initialized")
+    }
+    deinit {
+        print("\(name) is being deinitialized")
+    }
+}
+
+
+var reference1: Person?
+var reference2: Person?
+var reference3: Person?
+
+reference1 = Person(name: "John Appleseed")
+// 打印 "John Appleseed is being initialized"
+
+reference2 = reference1
+reference3 = reference1
+
+
+reference1 = nil
+reference2 = nil
+
+reference3 = nil
+// 打印 "John Appleseed is being deinitialized"
+```
+
+### 循环强引用
+通过定义类之间的关系为弱引用或无主引用，以替代强引用，从而解决循环强引用的问题
+
+
+**强引用example：**
+对于一般类型的属性，Swfit要求在一个类的初始化方法中保证它一定有值,因此swift中出现循环引用的情况只能是两个变量至少有一个是option类型。
+
+* 两个都是option类型，使用weak弱引用
+* 有且只有一个是option类型，使用unowned无主引用
+
+```swift
+class Person {
+    let name: String
+    init(name: String) { self.name = name }
+    var apartment: Apartment?
+    deinit { print("\(name) is being deinitialized") }
+}
+
+class Apartment {
+    let unit: String
+    init(unit: String) { self.unit = unit }
+    var tenant: Person?
+    deinit { print("Apartment \(unit) is being deinitialized") }
+}
+
+
+var john: Person?
+var unit4A: Apartment?
+
+john = Person(name: "John Appleseed")
+unit4A = Apartment(unit: "4A")
+
+//产生循环强引用
+john!.apartment = unit4A
+unit4A!.tenant = john
+
+//不会析构
+john = nil
+unit4A = nil
+
+```
+
+Swift 提供了两种办法用来解决你在使用类的属性时所遇到的循环强引用问题：
+* 弱引用（weak reference），声明属性或者变量时，在前面加上`weak`关键字表明这是一个弱引用
+* 无主引用（unowned reference）
+
+弱引用和无主引用允许循环引用中的一个实例引用而另外一个实例不保持强引用。
+这样实例能够互相引用而不产生循环强引用。
+
+* 当其他的实例有更短的生命周期时（也就是其他实例析构在先时），使用弱引用。
+* 当其他实例有相同的或者更长生命周期时，使用无主引用
+
+### 弱引用
+弱引用不会保持所引用的实例，即使引用存在，实例也可以被销毁。
+
+因此，`ARC` 会在引用的实例被销毁后自动将其赋值为`nil`。
+并且因为弱引用可以允许它们的值在运行时被赋值为`nil`，所以它们会被定义为**可选类型变量**，而不是常量。
+
+>注意
+当 ARC 设置弱引用为nil时，属性观察不会被触发。
+
+
+```swift
+class Person {
+    let name: String
+    init(name: String) { self.name = name }
+    var apartment: Apartment?
+    deinit { print("\(name) is being deinitialized") }
+}
+
+class Apartment {
+    let unit: String
+    init(unit: String) { self.unit = unit }
+    //弱引用，Person的生命周期更短的情况下使用
+    weak var tenant: Person?
+    deinit { print("Apartment \(unit) is being deinitialized") }
+}
+
+var john: Person?
+var unit4A: Apartment?
+
+john = Person(name: "John Appleseed")
+unit4A = Apartment(unit: "4A")
+
+//循环引用
+john!.apartment = unit4A
+unit4A!.tenant = john
+
+//析构
+john = nil
+//John Appleseed is being deinitialized
+//表明循环引用被打破
+
+unit4A = nil
+//Apartment 4A is being deinitialized
+```
+
+![](media/15343995130141/15363045169582.jpg)
+
+![](media/15343995130141/15363045355868.jpg)
+
+
+>注意
+在使用垃圾收集的系统里，弱指针有时用来实现简单的缓冲机制，因为没有强引用的对象只会在内存压力触发垃圾收集时才被销毁。但是在 `ARC` 中，**如果对象的最后一个强引用被移除，就会被立即销毁，这导致弱引用并不适合上面的用途**。
+
+
+### 无主引用
+和弱引用类似，无主引用不会牢牢保持住引用的实例。
+和弱引用不同的是，**无主引用在其他实例有相同或者更长的生命周期时使用**。
+在声明属性或者变量时，在前面加上关键字`unowned`表示这是一个无主引用。
+
+无主引用通常都被期望拥有值。
+不过 `ARC` 无法在实例被销毁后将无主引用设为`nil`，因为非可选类型的变量不允许被赋值为`nil`。
+
+`unowned`声明的只能定义为**非可选类型**
+
+>重要
+使用无主引用，你必须确保引用始终指向一个未销毁的实例。
+如果你试图在实例被销毁后，访问该实例的无主引用，会触发运行时错误。
+
+
+```swift
+class Customer {
+    let name: String
+    var card: CreditCard?
+    init(name: String) {
+        self.name = name
+    }
+    deinit { print("\(name) is being deinitialized") }
+}
+
+class CreditCard {
+    let number: UInt64
+    //unowned 无主应用，Customer对象生命周期更长的情况下使用
+    //当Customer对象被置为nil，CreditCard对象也会被自动回收
+    unowned let customer: Customer
+    init(number: UInt64, customer: Customer) {
+        self.number = number
+        self.customer = customer
+    }
+    deinit { print("Card #\(number) is being deinitialized") }
+}
+
+var customer: Customer?
+
+customer = Customer(name: "customer John Appleseed")
+customer!.card = CreditCard(number: 1234_5678_9012_3456, customer: customer!)
+//无主引用置为nil
+customer = nil
+//customer John Appleseed is being deinitialized
+//Card #1234567890123456 is being deinitialized
+```
+
+### 循环引用的第三种场景，无主引用以及隐式解析可选属性
+
+* Person和Apartment的例子展示了两个属性的值都允许为`nil`，并会潜在的产生循环强引用。这种场景最适合用弱引用来解决。
+
+* Customer和CreditCard的例子展示了一个属性的值允许为`nil`，而另一个属性的值不允许为`nil`，这也可能会产生循环强引用。这种场景最适合通过无主引用来解决。
+
+* 然而，存在着第三种场景，在这种场景中，**两个属性都必须有值**，并且初始化完成后永远不会为`nil`。在这种场景中，需要一个类使用**无主引用**，而另外一个类使用**隐式解析可选类型**属性。
+
+
+```swift
+class Country {
+    let name: String
+    //声明为隐式解析可选类型的属性 ！
+    var capitalCity: City!
+    init(name: String, capitalName: String) {
+        self.name = name
+        //Country的构造函数调用了City的构造函数
+        self.capitalCity = City(name: capitalName, country: self)
+    }
+}
+
+class City {
+    let name: String
+    //无主引用
+    unowned let country: Country
+    init(name: String, country: Country) {
+        self.name = name
+        self.country = country
+    }
+}
+```
+
+`Country`的构造函数调用了`City`的构造函数，然而，只有`Country`的实例完全初始化后，`Country`的构造函数才能把`self`传给`City`的构造函数。
+为了满足这种需求，通过在类型结尾处加上感叹号`City!`的方式，将`Country`的`capitalCity`属性声明为隐式解析可选类型的属性。这意味着像其他可选类型一样，`capitalCity`属性的默认值为`nil`，但是不需要展开它的值就能访问它。
+
+由于`capitalCity`默认值为`nil`，一旦`Country`的实例在构造函数中给`name`属性赋值后，整个初始化过程就完成了。这意味着一旦`name`属性被赋值后，`Country`的构造函数就能引用并传递隐式的`self`。`Country`的构造函数在赋值`capitalCity`时，就能将`self`作为参数传递给`City`的构造函数。
+
+以上的意义在于你可以通过一条语句同时创建`Country`和`City`的实例，而不产生循环强引用，并且`capitalCity`的属性能被直接访问，而不需要通过感叹号来展开它的可选值.
+
+```swift
+var country = Country(name: "Canada", capitalName: "Ottawa")
+print("\(country.name)'s capital city is called \(country.capitalCity.name)")
+// 打印 "Canada's capital city is called Ottawa"
+```
+
+### 闭包引起的循环强引用
+
+
+循环强引用还会发生在当你将一个闭包赋值给类实例的某个属性，并且这个闭包体中又使用了这个类实例时。这个闭包体中可能访问了实例的某个属性，例如`self.someProperty`，或者闭包中调用了实例的某个方法，例如`self.someMethod()`。这两种情况都导致了闭包“捕获”`self`，从而产生了循环强引用。
+
+
+>类似java中的匿名内部类持有外部类引用，但是泄露的机制是不同的，java只需要非静态内部类持有外部类引用就会导致GC不能回收外部类资源，但是Swift的Arc机制是需要闭包和外部类相互循环强引用。
+
+Swift 提供了一种优雅的方法来解决这个问题，称之为**闭包捕获列表**（closure capture list）
+
+如果闭包有参数列表和返回类型，把捕获列表放在它们前面：
+
+
+```swift
+lazy var someClosure: (Int, String) -> String = {
+    [unowned self, weak delegate = self.delegate!] (index: Int, stringToProcess: String) -> String in
+    // 这里是闭包的函数体
+}
+
+```
+
+如果闭包没有指明参数列表或者返回类型，即它们会通过上下文推断，那么可以把捕获列表和关键字in放在闭包最开始的地方：
+
+```swift
+lazy var someClosure: Void -> String = {
+    [unowned self, weak delegate = self.delegate!] in
+    // 这里是闭包的函数体
+}
+```
+
+>在闭包和捕获的实例总是互相引用并且总是同时销毁时，将闭包内的捕获定义为**无主引用**。
+>相反的，在被捕获的引用可能会变为`nil`时，将闭包内的捕获定义为**弱引用**。弱引用总是可选类型，并且当引用的实例被销毁后，弱引用的值会自动置为nil。这使我们可以在闭包体内检查它们是否存在。
+
+
+```swift
+class HTMLElement {
+
+    let name: String
+    let text: String?
+
+    lazy var asHTML: (Void) -> String = {
+    //捕获列表 表示“将self捕获为无主引用而不是强引用”
+        [unowned self] in
+        if let text = self.text {
+            return "<\(self.name)>\(text)</\(self.name)>"
+        } else {
+            return "<\(self.name) />"
+        }
+    }
+
+    init(name: String, text: String? = nil) {
+        self.name = name
+        self.text = text
+    }
+
+    deinit {
+        print("\(name) is being deinitialized")
+    }
+
+}
+```
+
+
+
+
+## 协议和扩展
+
+### 协议protocol
+
+
+#### 基本使用：
+类似java的接口`interface`
+使用 `protocol` 来声明一个协议：
+
+```swift
+protocol ExampleProtocol {
+    var simpleDescription: String { get }
+    //mutating关键字用来标记一个会修改结构体的方法 类似java的抽象方法
+    mutating func adjust()
+}
+
+//类、枚举和结构体都可以实现协议
+class SimpleClass: ExampleProtocol {
+    var simpleDescription: String = "A very simple class."
+    var anotherProperty: Int = 69105
+    //不需要override关键字，和java不同
+    func adjust() {
+        simpleDescription += " Now 100% adjusted."
+    }
+}
+var a = SimpleClass()
+a.adjust()
+let aDescription = a.simpleDescription
+
+//结构体
+struct SimpleStructure: ExampleProtocol {
+    var simpleDescription: String = "A simple structure"
+    mutating func adjust() {
+        simpleDescription += " (adjusted)"
+    }
+}
+var b = SimpleStructure()
+b.adjust()
+let bDescription = b.simpleDescription
+```
+注意声明 结构体`SimpleStructure` 时候 `mutating` 关键字用来标记一个会修改结构体的方法。`SimpleClass` 的声明不需要标记任何方法，因为类中的方法通常可以修改类属性（类的性质）。
+
+
+```swift
+protocol SomeClassOnlyProtocol: class, SomeInheritedProtocol {
+    //class关键字 这里是类类型专属协议的定义部分
+}
+```
+#### 提供默认实现
+可以通过协议扩展来为协议要求的属性、方法以及下标提供默认的实现。
+如果遵循协议的类型为这些要求提供了自己的实现，那么这些自定义实现将会替代扩展中的默认实现被使用。
+
+
+```swift
+
+protocol TextRepresentable {
+    var textualDescription: String { get }
+}
+
+
+protocol PrettyTextRepresentable: TextRepresentable {
+    var prettyTextualDescription: String { get }
+}
+
+//为其提供一个默认的 prettyTextualDescription 属性
+extension PrettyTextRepresentable {
+    var prettyTextualDescription: String {
+        return textualDescription
+    }
+}
+
+```
+
+
+#### 为协议扩展添加限制条件
+在扩展协议的时候，可以指定一些限制条件，只有遵循协议的类型满足这些限制条件时，才能获得协议扩展提供的默认实现。这些限制条件写在协议名之后，使用 `where` 子句来描述
+
+
+```swift
+//扩展 CollectionType 协议，但是只适用于集合中的元素遵循了 TextRepresentable 协议的情况
+extension Collection where Iterator.Element: TextRepresentable {
+    var textualDescription: String {
+        let itemsAsText = self.map { $0.textualDescription }
+        return "[" + itemsAsText.joined(separator: ", ") + "]"
+    }
+}
+```
+
+>注意
+如果多个协议扩展都为同一个协议要求提供了默认实现，而遵循协议的类型又同时满足这些协议扩展的限制条件，那么将会使用限制条件最多的那个协议扩展提供的默认实现。
+
+### 扩展extension
+Swift 中的扩展可以：
+
+* 添加计算型属性和计算型类型属性
+* 定义实例方法和类型方法
+* 提供新的构造器
+* 定义下标
+* 定义和使用新的嵌套类型
+* 使一个已有类型符合某个协议
+
+>注意
+扩展可以为一个类型添加新的功能，但是不能重写已有的功能。
+
+
+使用 `extension` 来为现有的类型添加`protocol`功能，比如新的方法和计算属性。
+**你可以使用扩展让某个在别处声明的类型来遵守某个协议，这同样适用于从外部库或者框架引入的类型。**
+
+```swift
+
+extension SomeType {
+    // 为 SomeType 添加的新功能写到这里
+}
+
+
+//计算型实例属性
+extension Double {
+    var km: Double { return self * 1_000.0 }
+    var m : Double { return self }
+    var cm: Double { return self / 100.0 }
+    var mm: Double { return self / 1_000.0 }
+    var ft: Double { return self / 3.28084 }
+}
+let oneInch = 25.4.mm
+print("One inch is \(oneInch) meters")
+// 打印 “One inch is 0.0254 meters”
+let threeFeet = 3.ft
+print("Three feet is \(threeFeet) meters")
+// 打印 “Three feet is 0.914399970739201 meters”
+
+//实例方法
+extension Int {
+    func repetitions(task: () -> Void) {
+        for _ in 0..<self {
+            task()
+        }
+    }
+}
+
+//可变实例方法
+extension Int {
+//结构体和枚举类型中修改 self 或其属性的方法必须将该实例方法标注为 mutating
+    mutating func square() {
+        self = self * self
+    }
+}
+var someInt = 3
+someInt.square()
+// someInt 的值现在是 9
+
+
+//下标
+extension Int {
+    subscript(digitIndex: Int) -> Int {
+        var decimalBase = 1
+        for _ in 0..<digitIndex {
+            decimalBase *= 10
+        }
+        return (self / decimalBase) % 10
+    }
+}
+746381295[0]
+// 返回 5
+746381295[1]
+// 返回 9
+746381295[2]
+// 返回 2
+746381295[8]
+// 返回 7
+
+
+
+//嵌套类型
+extension Int {
+    enum Kind {
+        case Negative, Zero, Positive
+    }
+    var kind: Kind {
+        switch self {
+        case 0:
+            return .Zero
+        case let x where x > 0:
+            return .Positive
+        default:
+            return .Negative
+        }
+    }
+}
+```
+
+>注意
+如果你通过扩展为一个已有类型添加新功能，那么新功能对该类型的所有已有实例都是可用的，即使它们是在这个扩展定义之前创建的。
+
+>注意
+扩展可以添加新的计算型属性，但是不可以添加存储型属性，也不可以为已有属性添加属性观察器。
+
+扩展能为类添加新的便利构造器，但是它们不能为类添加新的指定构造器或析构器。指定构造器和析构器必须总是由原始的类实现来提供。
+
+
+
+
+你可以像使用其他命名类型一样使用协议名——例如，创建一个有不同类型但是都实现一个协议的对象集合。当你处理类型是协议的值时，协议外定义的方法不可用。
+
+```swift
+
+protocol ExampleProtocol {
+    var simpleDescription: String { get }
+    //mutating关键字用来标记一个会修改结构体的方法 类似java的抽象方法
+    mutating func adjust()
+}
+
+class SimpleClass: ExampleProtocol {
+    var simpleDescription: String = "A very simple class."
+    var anotherProperty: Int = 69105
+    func adjust() {
+        simpleDescription += " Now 100% adjusted."
+    }
+}
+
+var a1 = SimpleClass()
+//声明ExampleProtocol协议类型的变量
+let protocolValue: ExampleProtocol = a1
+//协议内方法可用
+print(protocolValue.simpleDescription)
+
+//这和java类似，编译器只知道protocolValue是ExampleProtocol类型，自然不能使用其子类SimpleClass定义的方法。
+//即使 protocolValue 变量运行时的类型是 simpleClass ，编译器还是会把它的类型当做声明时的类型ExampleProtocol。
+
+//print(protocolValue.anotherProperty) // 去掉注释可以看到错误
+
+```
+
+## 错误处理
+
+使用采用 `Error` **协议**的类型来表示错误
+
+### 定义错误`Error`：
+```swift
+enum PrinterError: Error {
+    case outOfPaper
+    case noToner
+    case onFire
+}
+```
+
+### throw
+使用 `throw` 来抛出一个错误并使用 `throws` 来表示一个可以抛出错误的函数
+如果在函数中抛出一个错误，这个函数会立刻返回并且调用该函数的代码会进行错误处理
+
+>注意
+只有 throwing 函数可以传递错误。任何在某个非 throwing 函数内部抛出的错误只能在函数内部处理。
+
+
+```swift
+func canThrowAnError() throws {
+    // 这个函数有可能抛出错误
+}
+```
+
+```swift
+//如果这个函数指明了返回值类型，throws关键词需要写在箭头（->）的前面
+func send(job: Int, toPrinter printerName: String) throws -> String {
+    if printerName == "Never Has Toner" {
+        throw PrinterError.noToner
+    }
+    return "Job sent"
+}
+```
+
+
+
+>注意
+Swift 中的错误处理和其他语言中用try，catch和throw进行异常处理很像。和其他语言中（包括 Objective-C ）的异常处理不同的是，Swift 中的错误处理并不涉及解除调用栈，这是一个计算代价高昂的过程。就此而言，`throw`语句的性能特性是可以和`return`语句相媲美的。
+
+
+**错误处理的方法：**
+
+### do-catch
+一种方式是使用 `do-catch` 。在 do 代码块中，使用 `try` 来标记可以抛出错误的代码。在 catch 代码块中，除非你另外命名，否则错误会自动命名为 error 。
+
+```swift
+do {
+    //使用 `try` 来标记可以抛出错误的代码
+    let printerResponse = try send(job: 1040, toPrinter: "Bi Sheng")
+    print(printerResponse)
+} catch {
+    print(error)
+}
+```
+
+可以使用多个 `catch` 块来处理特定的错误。参照 switch 中的 `case` 风格来写 `catch`。
+
+```swift
+
+func send(job: Int, toPrinter printerName: String) throws -> String {
+    if printerName == "Bi Sheng" {
+        throw PrinterError.noToner
+    }else if printerName == "Gutenberg"{
+        throw PrinterError.onFire
+    }
+    return "Job sent"
+}
+
+
+
+do {
+    let printerResponse = try send(job: 1440, toPrinter: "Gutenberg")
+    print(printerResponse)
+} catch PrinterError.onFire {
+    print("I'll just put this over here, with the rest of the fire.")
+} catch let printerError as PrinterError {
+    print("Printer error: \(printerError).")
+} catch {
+    print(error)
+}
+
+```
+### try?
+另一种处理错误的方式使用` try?` 将结果转换为可选的。
+如果函数抛出错误，该错误会被抛弃并且结果为 `nil`。否则的话，结果会是一个包含函数返回值的可选值。
+
+```swift
+let printerSuccess = try? send(job: 1884, toPrinter: "Gutenberg")
+let printerFailure = try? send(job: 1885, toPrinter: "Never Has Toner")
+```
+
+### try!
+某个throwing函数实际上在运行时是不会抛出错误的，在这种情况下，你可以在表达式前面写`try!`来禁用错误传递，这会把调用包装在一个不会有错误抛出的运行时断言中。如果真的抛出了错误，你会得到一个运行时错误。
+
+```swift
+let photo = try! loadImage(atPath: "./Resources/John Appleseed.jpg")
+```
+
+
+### defer
+使用 `defer` 代码块来表示在函数返回前，函数中最后执行的代码。
+**无论函数是否会抛出错误，这段代码都将执行。**
+使用 `defer`，可以把函数调用之初就要执行的代码和函数调用结束时的扫尾代码写在一起，虽然这两者的执行时机截然不同。
+类似java中的`finally`。
+
+```swift
+var fridgeIsOpen = false
+
+func fridgeContains() {
+    fridgeIsOpen = true
+    defer {
+        fridgeIsOpen = false
+    }
+}
+print(fridgeIsOpen)
+
+```
+
+## 类型转换
+类型转换在 Swift 中使用 is 和 as 操作符实现。
+也可以用它来检查一个类型是否实现了某个协议
+
+
+### 检查类型is
+```swift
+var movieCount = 0
+var songCount = 0
+
+for item in library {
+    //判断类型
+    if item is Movie {
+        movieCount += 1
+    } else if item is Song {
+        songCount += 1
+    }
+}
+
+print("Media library contains \(movieCount) movies and \(songCount) songs")
+// 打印 “Media library contains 2 movies and 3 songs”
+
+```
+### 向下转型as
+某类型的一个常量或变量可能在实际上属于一个子类。
+尝试向下转到它的子类型，用类型转换操作符（`as?` 或` as!`）。
+
+因为向下转型可能会失败，类型转型操作符带有两种不同形式。条件形式`as?` 返回一个你试图向下转成的类型的可选值。
+强制形式 `as!` 把试图向下转型和强制解包转换结果结合为一个操作。
+
+当你不确定向下转型可以成功时，用类型转换的条件形式（`as?`）。条件形式的类型转换总是返回一个可选值，并且若下转是不可能的，可选值将是 `nil`。这使你能够检查向下转型是否成功。
+
+只有你可以确定向下转型一定会成功时，才使用强制形式（`as!`）。当你试图向下转型为一个不正确的类型时，强制形式的类型转换会触发一个运行时错误。
+
+
+```swift
+for item in library {
+    //结合可选绑定一起使用
+    if let movie = item as? Movie {
+        print("Movie: '\(movie.name)', dir. \(movie.director)")
+    } else if let song = item as? Song {
+        print("Song: '\(song.name)', by \(song.artist)")
+    }
+}
+```
+当向下转型为 Movie 应用在两个 Song 实例时将会失败。
+为了处理这种情况，上面的例子使用了可选绑定（optional binding）来检查可选 Movie 真的包含一个值（这个是为了判断下转是否成功。）
+
+
+### Any 和 AnyObject 的类型转换
+
+Swift 为不确定类型提供了两种特殊的类型别名：
+
+* `Any` 可以表示任何类型，包括函数类型。
+* `AnyObject` 可以表示任何类类型的实例。
+
+只有当你确实需要它们的行为和功能时才使用 `Any` 和 `AnyObject`。在你的代码里使用你期望的明确类型总是更好的。
+
+
+```swift
+var things = [Any]()
+
+things.append(0)
+things.append(0.0)
+things.append(42)
+things.append(3.14159)
+things.append("hello")
+things.append((3.0, 5.0))
+things.append(Movie(name: "Ghostbusters", director: "Ivan Reitman"))
+things.append({ (name: String) -> String in "Hello, \(name)" })
+
+```
+
+
+>注意
+Any类型可以表示所有类型的值，包括可选类型。Swift 会在你用Any类型来表示一个可选值的时候，给你一个警告。如果你确实想使用Any类型来承载可选值，你可以使用as操作符显式转换为Any，如下所示：
+
+```swift
+let optionalNumber: Int? = 3
+things.append(optionalNumber)        // 警告
+things.append(optionalNumber as Any) // 没有警告
+```
+
+## 嵌套类型
+
+要在一个类型中嵌套另一个类型，将嵌套类型的定义写在其外部类型的 `{}` 内，而且可以根据需要定义多级嵌套。
+
+
+```swift
+struct BlackjackCard {
+    
+    // 嵌套的 Suit 枚举
+    enum Suit: Character {
+        case spades = "♠", hearts = "♡", diamonds = "♢", clubs = "♣"
+    }
+    
+    // 嵌套的 Rank 枚举
+    enum Rank: Int {
+        case two = 2, three, four, five, six, seven, eight, nine, ten
+        case jack, queen, king, ace
+        //结构体 Values 中定义了两个属性，用于反映只有 Ace 有两个数值，其余牌都只有一个数值
+        struct Values {
+            let first: Int, second: Int?
+        }
+        var values: Values {
+            switch self {
+            case .ace:
+                return Values(first: 1, second: 11)
+            case .jack, .queen, .king:
+                return Values(first: 10, second: nil)
+            default:
+                return Values(first: self.rawValue, second: nil)
+            }
+        }
+    }
+    
+    // BlackjackCard 的属性和方法
+    let rank: Rank, suit: Suit
+    var description: String {
+        var output = "suit is \(suit.rawValue),"
+        output += " value is \(rank.values.first)"
+        if let second = rank.values.second {
+            output += " or \(second)"
+        }
+        return output
+    }
+}
+let theAceOfSpades = BlackjackCard(rank: .ace, suit: .spades)
+print("theAceOfSpades: \(theAceOfSpades.description)")
+// 打印 “theAceOfSpades: suit is ♠, value is 1 or 11”
+```
+
+
+
+
+
+
+
+
+## 泛型
+在尖括号里写一个名字来创建一个泛型函数或者类型
+
+### 定义和使用：
+```swift
+//泛型函数
+func swapTwoValues<T>(_ a: inout T, _ b: inout T) {
+    let temporaryA = a
+    a = b
+    b = temporaryA
+}
+
+var a = 11;
+var b = 12
+swapTwoValues(&a, &b)
+print(a)
+print(b)
+```
+
+可以创建泛型函数、方法、类、枚举和结构体
+
+```swift
+enum OptionalValue<Wrapped> {
+    case None
+    case Some(Wrapped)
+}
+var possibleInteger: OptionalValue<Int> = .None
+possibleInteger = .Some(100)
+```
+
+
+在类型名后面使用 `where` 来指定对类型的需求，比如，限定类型实现某一个协议，限定两个类型是相同的，或者限定某个类必须有一个特定的父类。
+
+```swift
+
+func anyCommonElements<T: Sequence, U: Sequence>(_ lhs: T, _ rhs: U) -> Bool
+//where条件指定T.Iterator.Element实现Equatable协议，T.Iterator.Element和U.Iterator.Element的类型相同
+    where T.Iterator.Element: Equatable, T.Iterator.Element == U.Iterator.Element {
+        for lhsItem in lhs {
+            for rhsItem in rhs {
+                if lhsItem == rhsItem {
+                    return true
+                }
+            }
+        }
+        return false
+}
+anyCommonElements([1, 2, 3], [3])
+```
+
+### 类型约束
+类型约束可以指定一个类型参数必须继承自指定类，或者符合一个特定的协议或协议组合
+
+
+第一个类型参数 T，有一个要求 T 必须是 `SomeClass` 子类的类型约束；第二个类型参数 U，有一个要求 U 必须符合 `SomeProtocol` 协议的类型约束
+```swift
+func someFunction<T: SomeClass, U: SomeProtocol>(someT: T, someU: U) {
+    // 这里是泛型函数的函数体部分
+}
+```
+### 关联类型
+定义一个协议时，有的时候声明一个或多个关联类型作为协议定义的一部分将会非常有用。
+
+关联类型为协议中的某个类型提供了一个占位名（或者说别名），其代表的实际类型在协议被采纳时才会被指定。你可以通过 `associatedtype` 关键字来指定关联类型。
+
+
+
+为了定义这三个协议方法，`Container` 协议需要在不知道容器中元素的具体类型的情况下引用这种类型。
+为了达到这个目的，`Container` 协议声明了一个关联类型 `ItemType`，ItemType 别名提供了一种方式来引用 Container 中元素的类型。
+
+
+```swift
+protocol Container {
+    //声明了一个关联类型 `ItemType`
+    associatedtype ItemType
+    mutating func append(_ item: ItemType)
+    var count: Int { get }
+    subscript(i: Int) -> ItemType { get }
+}
+
+struct IntStack: Container {
+    // IntStack 的原始实现部分
+    var items = [Int]()
+    mutating func push(_ item: Int) {
+        items.append(item)
+    }
+    mutating func pop() -> Int {
+        return items.removeLast()
+    }
+    // Container 协议的实现部分
+    //指定 ItemType 为 Int 类型，由于类型推断，这里也可以省略
+    typealias ItemType = Int
+    mutating func append(_ item: Int) {
+        self.push(item)
+    }
+    var count: Int {
+        return items.count
+    }
+    subscript(i: Int) -> Int {
+        return items[i]
+    }
+}
+```
+
+### 扩展一个存在的类型来指定关联类型
+
+```swift
+extension Array: Container {}
+```
+
+### 约束关联类型
+给协议里的关联类型添加类型注释，让遵守协议的类型必须遵循这个约束条件
+
+```swift
+protocol Container {
+    //约束关联类型
+    associatedtype Item: Equatable
+    mutating func append(_ item: Item)
+    var count: Int { get }
+    subscript(i: Int) -> Item { get }
+}
+```
+
+### 泛型 where 语句
+
+
+这个函数的类型参数列表还定义了对两个类型参数的要求：
+
+* C1 必须符合 Container 协议（写作 C1: Container）。
+* C2 必须符合 Container 协议（写作 C2: Container）。
+* C1 的 ItemType 必须和 C2 的 ItemType类型相同（写作 C1.ItemType == C2.ItemType）。
+* C1 的 ItemType 必须符合 Equatable 协议（写作 C1.ItemType: Equatable）。
+
+```swift
+func allItemsMatch<C1: Container, C2: Container> (_ someContainer: C1, _ anotherContainer: C2) -> Bool
+    where C1.ItemType == C2.ItemType, C1.ItemType: Equatable {
+        
+        // 检查两个容器含有相同数量的元素
+        if someContainer.count != anotherContainer.count {
+            return false
+        }
+        
+        // 检查每一对元素是否相等
+        for i in 0..<someContainer.count {
+            if someContainer[i] != anotherContainer[i] {
+                return false
+            }
+        }
+        
+        // 所有元素都匹配，返回 true
+        return true
+}
+
+
+
+var stackOfStrings = Stack<String>()
+stackOfStrings.push("uno")
+stackOfStrings.push("dos")
+stackOfStrings.push("tres")
+
+var arrayOfStrings = ["uno", "dos", "tres"]
+
+if allItemsMatch(stackOfStrings, arrayOfStrings) {
+    print("All items match.")
+} else {
+    print("Not all items match.")
+}
+// 打印 “All items match.”
+
+```
+### 具有泛型 where 子句的扩展
+
+
+```swift
+
+struct Stack<Element> {
+    var items = [Element]()
+    mutating func push(_ item: Element) {
+        items.append(item)
+    }
+    mutating func pop() -> Element {
+        return items.removeLast()
+    }
+}
+
+//泛型 where 子句要求 Item 符合协议
+extension Stack where Element: Equatable {
+    func isTop(_ item: Element) -> Bool {
+    //如果条件不成立，可用 guard 语句用来退出当前作用域
+        guard let topItem = items.last else {
+            return false
+        }
+        return topItem == item
+    }
+}
+
+
+struct NotEquatable { }
+var notEquatableStack = Stack<NotEquatable>()
+let notEquatableValue = NotEquatable()
+notEquatableStack.push(notEquatableValue)
+notEquatableStack.isTop(notEquatableValue)  // 报错
+
+//泛型 where 子句去要求 Item 为特定类型
+extension Container where Item == Double {
+    func average() -> Double {
+        var sum = 0.0
+        for index in 0..<count {
+            sum += self[index]
+        }
+        return sum / Double(count)
+    }
+}
+print([1260.0, 1200.0, 98.6, 37.0].average())
+// 打印 "648.9"
+
+```
+
+
+### 泛型 where 子句的关联类型
+
+
+```swift
+protocol Container {
+    associatedtype Item
+    mutating func append(_ item: Item)
+    var count: Int { get }
+    subscript(i: Int) -> Item { get }
+
+    associatedtype Iterator: IteratorProtocol where Iterator.Element == Item
+    func makeIterator() -> Iterator
+}
+
+protocol ComparableContainer: Container where Item: Comparable { }
+```
+
+### 泛型下标
+
+```swift
+extension Container_ {
+    subscript<Indices: Sequence>(indices: Indices) -> [Item]
+        where Indices.Iterator.Element == Int {
+            var result = [Item]()
+            for index in indices {
+                result.append(self[index])
+            }
+            return result
+    }
+}
+```
+
+这个泛型下标的约束如下：
+* 在尖括号中的泛型参数 `Indices`，必须是符合标准库中的 `Sequence` 协议的类型。
+* 下标使用的单一的参数，`indices`，必须是 `Indices` 的实例。
+* 泛型 `where` 子句要求 Sequence（Indices）的迭代器，其所有的元素都是 `Int` 类型。这样就能确保在序列（Sequence）中的索引和容器(Container)里面的索引类型是一致的。
+
+## 可选链式调用
+
+可选链式调用是一种可以在当前值可能为`nil`的可选值上请求和调用属性、方法及下标的方法。
+如果可选值有值，那么调用就会成功；如果可选值是`nil`，那么调用将返回`nil`。多个调用可以连接在一起形成一个**调用链**，如果其中任何一个节点为`nil`，整个调用链都会失败，即返回`nil`。
+
+>注意
+Swift 的可选链式调用和 Objective-C 中向nil发送消息有些相像，但是 Swift 的可选链式调用可以应用于任意类型，并且能检查调用是否成功。
+
+
+```swift
+class Person {
+    var residence: Residence?
+}
+
+class Residence {
+    var numberOfRooms = 1
+}
+let john = Person()
+
+//强制解析option类型，residence = nil,编译报错
+//let roomCount = john.residence!.numberOfRooms
+
+//john.residence = Residence()
+
+//可选链
+//在residence后面添加问号之后，Swift 就会在residence不为nil的情况下访问numberOfRooms
+//可选链式调用会返回Int?类型
+if let roomCount = john.residence?.numberOfRooms {
+    print("John's residence has \(roomCount) room(s).")
+} else {
+    print("Unable to retrieve the number of rooms.")
+}
+
+```
+
+访问可选类型的下标：
+```swift
+var testScores = ["Dave": [86, 82, 84], "Bev": [79, 94, 81]]
+testScores["Dave"]?[0] = 91
+testScores["Bev"]?[0] += 1
+testScores["Brian"]?[0] = 72
+// "Dave" 数组现在是 [91, 82, 84]，"Bev" 数组现在是 [80, 94, 81]
+```
+
+
+## 内存安全
+
+>注意
+如果你写过并发和多线程的代码，内存访问冲突也许是同样的问题。然而，这里访问冲突的讨论是在单线程的情境下讨论的，并没有使用并发或者多线程。
+如果你曾经在单线程代码里有访问冲突，Swift 可以保证你在编译或者运行时会得到错误。对于多线程的代码，可以使用 Thread Sanitizer 去帮助检测多线程的冲突。
+
+### 内存访问的典型状况
+
+内存访问冲突有三种典型的状况：访问是读还是写，访问的时长，以及被访问的存储地址。特别是，当你有两个访问符合下列的情况：
+
+* 至少有一个是写访问
+* 它们访问的是同一个存储地址
+* 它们的访问在时间线上部分重叠
+
+
+重叠的访问主要出现在使用 `in-out` 参数的函数和方法或者结构体的 `mutating` 方法里
+
+### In-Out 参数的访问冲突
+一个函数会对它所有的 `in-out` 参数进行长期写访问。
+`in-out` 参数的写访问会在所有非 `in-out` 参数处理完之后开始，直到函数执行完毕为止。如果有多个 `in-out` 参数，则写访问开始的顺序与参数的顺序一致。
+
+
+长期访问的存在会造成一个结果，你不能在原变量以 in-out 形式传入后访问原变量，即使作用域原则和访问权限允许 —— 任何访问原变量的行为都会造成冲突.
+
+
+```swift
+var stepSize = 1
+
+func increment(_ number: inout Int) {
+    number += stepSize
+}
+
+increment(&stepSize)
+// 错误：stepSize 访问冲突
+```
+`stepSize` 是一个全局变量，并且它可以在 `increment(_:)` 里正常访问。
+然而，对于 `stepSize` 的读访问与 `number` 的写访问重叠了。就像下面展示的那样，`number` 和 `stepSize` 都指向了同一个存储地址。
+同一块内存的读和写访问重叠了，就此产生了冲突。
+
+
+往同一个函数的多个 in-out 参数里传入同一个变量也会产生冲突
+
+```swift
+func balance(_ x: inout Int, _ y: inout Int) {
+    let sum = x + y
+    x = sum / 2
+    y = sum - x
+}
+var playerOneScore = 42
+var playerTwoScore = 30
+balance(&playerOneScore, &playerTwoScore)  // 正常
+balance(&playerOneScore, &playerOneScore)
+// 错误：playerOneScore 访问冲突
+```
+
+### 方法里 self 的访问冲突
+一个结构体的 `mutating` 方法会在调用期间对 `self` 进行写访问
+
+```swift
+struct Player {
+    var name: String
+    var health: Int
+    var energy: Int
+
+    static let maxHealth = 10
+    mutating func restoreHealth() {
+        health = Player.maxHealth
+    }
+}
+//接受另一个 Player 的实例作为 in-out 参数，产生了访问重叠的可能性
+extension Player {
+    mutating func shareHealth(with teammate: inout Player) {
+        balance(&teammate.health, &health)
+    }
+}
+
+var oscar = Player(name: "Oscar", health: 10, energy: 10)
+var maria = Player(name: "Maria", health: 5, energy: 10)
+oscar.shareHealth(with: &maria)  // 正常
+
+oscar.shareHealth(with: &oscar)
+// 错误：oscar 访问冲突
+
+```
+
+
+`mutating` 方法在调用期间需要对 `self` 发起写访问，而同时 `in-out` 参数也需要写访问。在方法里，`self` 和 `teammate` 都指向了同一个存储地址。对于同一块内存同时进行两个写访问，并且它们重叠了，就此产生了冲突。
+
+
+### 属性的访问冲突
+
+结构体，元组和枚举的类型都是由多个独立的值组成的，例如结构体的属性或元组的元素。因为它们都是值类型，**修改值的任何一部分都是对于整个值的修改**，意味着其中一个属性的读或写访问都需要访问整一个值。
+
+例如，元组元素的写访问重叠会产生冲突：
+
+```swift
+var playerInformation = (health: 10, energy: 20)
+balance(&playerInformation.health, &playerInformation.energy)
+// 错误：playerInformation 的属性访问冲突
+```
+传入同一元组的元素对 `balance(_:_:)` 进行调用，产生了冲突，因为 `playerInformation` 的访问产生了写访问重叠.
+任何情况下，对于元组元素的写访问都需要对整个元组发起写访问。这意味着对于 `playerInfomation` 发起的两个写访问重叠了，造成冲突。
+
+```swift
+//对于一个存储在全局变量里的结构体属性的写访问重叠了
+var holly = Player(name: "Holly", health: 10, energy: 10)
+balance(&holly.health, &holly.energy)  // 错误
+```
+
+在实践中，大多数对于结构体属性的访问都会安全的重叠。例如，将上面例子里的变量 `holly` 改为本地变量而非全局变量，编译器就会可以保证这个重叠访问时安全的：
+
+```swift
+func someFunction() {
+    var oscar = Player(name: "Oscar", health: 10, energy: 10)
+    balance(&oscar.health, &oscar.energy)  // 正常
+}
+```
+
+当你遵循下面的原则时，它可以保证结构体属性的重叠访问是安全的：
+
+* 你访问的是实例的存储属性，而不是计算属性或类的属性
+* 结构体是本地变量的值，而非全局变量
+* 结构体要么没有被闭包捕获，要么只被非逃逸闭包捕获了
+
+如果编译器无法保证访问的安全性，它就不会允许访问。
+
+
+## 访问控制
+
+* `Open` 和 `Public` 级别可以让实体被同一模块源文件中的所有实体访问，在模块外也可以通过导入该模块来访问源文件里的所有实体。通常情况下，你会使用 Open 或 Public 级别来指定框架的外部接口。Open 和 Public 的区别在后面会提到。
+* `Internal` 级别让实体被同一模块源文件中的任何实体访问，但是不能被模块外的实体访问。通常情况下，如果某个接口只在应用程序或框架内部使用，就可以将其设置为 Internal 级别。
+* `File-private` 限制实体只能在其定义的文件内部访问。如果功能的部分细节只需要在文件内使用时，可以使用 File-private 来将其隐藏。
+* `Private` 限制实体只能在其定义的作用域，以及同一文件内的 extension 访问。如果功能的部分细节只需要在当前作用域内使用时，可以使用 Private 来将其隐藏。
+
+
+默认为 `internal` 级别
+
+`Open` 只能作用于类和类的成员，它和 `Public` 的区别如下：
+
+* `Public` 或者其它更严访问级别的类，只能在其定义的模块内部被继承。
+* `Public` 或者其它更严访问级别的类成员，只能在其定义的模块内部的子类中重写。
+* `Open` 的类，可以在其定义的模块中被继承，也可以在引用它的模块中被继承。
+* `Open` 的类成员，可以在其定义的模块中子类中重写，也可以在引用它的模块中的子类重写。
+
+
+```swift
+public class SomePublicClass {}
+internal class SomeInternalClass {}
+fileprivate class SomeFilePrivateClass {}
+private class SomePrivateClass {}
+
+public var somePublicVariable = 0
+internal let someInternalConstant = 0
+fileprivate func someFilePrivateFunction() {}
+private func somePrivateFunction() {}
+
+```
