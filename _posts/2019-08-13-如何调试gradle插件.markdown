@@ -13,13 +13,11 @@
 1，首先开发一个gradle插件，一般都在intelliJ IDEA中，
 点击`Edit configurations`，打开`Run/Debug Configurations`，点击左上角的`+`号，找到`Remote`，直接`ok`点击添加。
 
-![Remote](https://github.com/TangHuaiZhe/tanghuaizhe.github.io/blob/master/assets/image-20190813160721674.png?raw=true)
+![](https://tva1.sinaimg.cn/large/008eGmZEgy1gnu99cisfzj30v70lmdhc.jpg)
 
 2，将项目的调试配置修改为刚才添加的配置，这里没有修改名字因此是Unnamed。
 
-![Unnamed](https://github.com/TangHuaiZhe/tanghuaizhe.github.io/blob/master/assets/WX20190813-160810.png?raw=true)
-
-
+![](https://tva1.sinaimg.cn/large/008eGmZEgy1gnu993nqyxj305f01ijr5.jpg)
 
 3，回到idea，在你插件的源码中放置断点。
 
@@ -33,16 +31,14 @@
 
 这里的`removeRes`替换为你插件提供的`gradle`任务名，后面的参数意思是让gradle进入调试模式。
 
-此时gradle会开始等待远程连接。
+此时`gradle`会开始等待远程连接。
 
 
 
 5，回到idea，点击调试按钮
 
-![image-20190813171135626](https://github.com/TangHuaiZhe/tanghuaizhe.github.io/blob/master/assets/image-20190813171135626.png?raw=true)
-
-
+![](https://tva1.sinaimg.cn/large/008eGmZEgy1gnu999qvupj306401j3ya.jpg)
 
 5，回到你的idea，等待`gradle`任务执行到你的断点，此时断点应该已然生效。
 
-![image-20190813171528905](https://github.com/TangHuaiZhe/tanghuaizhe.github.io/blob/master/assets/image-20190813171528905.png?raw=true)
+![](https://tva1.sinaimg.cn/large/008eGmZEgy1gnu999kjlqj30rb0az0t2.jpg)
