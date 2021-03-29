@@ -16,7 +16,7 @@
 title: Tang Huaizhe blog
 email: tanghuaizhe@me.com
 description: >- # this means to ignore newlines until "baseurl:"
-  十年技术一场空啊
+  你是正确的或错误的，并不取决于大家是否同意你。你是正确的，是因为你的资料和推理是正确的。
 # baseurl: "" # the subpath of your site, e.g. /blog
 # url: "" # the base hostname & protocol for your site, e.g. http://example.com
 # twitter_username: tanghuaizhe
@@ -24,7 +24,7 @@ github_username:  tanghuaizhe
 
 # Build settings
 markdown: kramdown
-theme: minima
+theme: jekyll-theme-cayman
 plugins:
   - jekyll-feed
 # remote_theme: chrisrhymes/bulma-clean-theme
