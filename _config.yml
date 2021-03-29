@@ -13,7 +13,7 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: Tang Huaizhe blog
+title: NullPointException
 email: tanghuaizhe@me.com
 description: >- # this means to ignore newlines until "baseurl:"
   你是正确的或错误的，并不取决于大家是否同意你。你是正确的，是因为你的资料和推理是正确的。
