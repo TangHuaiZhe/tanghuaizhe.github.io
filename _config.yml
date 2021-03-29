@@ -24,7 +24,7 @@ github_username:  tanghuaizhe
 
 # Build settings
 markdown: kramdown
-theme: jekyll-theme-cayman
+theme: jekyll-theme-hacker
 plugins:
   - jekyll-feed
 # remote_theme: chrisrhymes/bulma-clean-theme
