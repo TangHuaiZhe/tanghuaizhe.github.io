@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="从几何直觉到完整计算，通俗理解拉格朗日乘数法如何求解带约束的函数极值。">
+  <meta name="theme-color" content="#111827">
+  <meta property="og:title" content="拉格朗日乘数法：约束之下，如何寻找极值？">
+  <meta property="og:description" content="几何直觉、完整例题、标准步骤与常见陷阱。">
+  <meta property="og:type" content="article">
+  <title>拉格朗日乘数法：约束之下，如何寻找极值？</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #5d687a;
+      --paper: #f7f8fb;
+      --card: #ffffff;
+      --line: #dfe4ec;
+      --blue: #2563eb;
+      --blue-soft: #eaf1ff;
+      --violet: #7c3aed;
+      --green: #0f8a67;
+      --warm: #f59e0b;
+      --shadow: 0 18px 60px rgba(24, 34, 53, .08);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(37, 99, 235, .10), transparent 30rem),
+        radial-gradient(circle at 92% 8%, rgba(124, 58, 237, .08), transparent 25rem),
+        var(--paper);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 17px;
+      line-height: 1.85;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; }
+
+    .wrap {
+      width: min(1080px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: rgba(247, 248, 251, .78);
+      border-bottom: 1px solid rgba(223, 228, 236, .8);
+    }
+
+    .topbar-inner {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: .08em;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    nav a { text-decoration: none; }
+    nav a:hover { color: var(--blue); }
+
+    .hero {
+      padding: 94px 0 72px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border: 1px solid #cdd9f5;
+      border-radius: 999px;
+      color: #1d4ed8;
+      background: rgba(255,255,255,.72);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+    }
+
+    h1 {
+      max-width: 860px;
+      margin: 28px auto 20px;
+      font-size: clamp(40px, 7vw, 76px);
+      line-height: 1.08;
+      letter-spacing: -.045em;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: clamp(18px, 2.3vw, 23px);
+      line-height: 1.7;
+    }
+
+    .hero-formula {
+      width: fit-content;
+      max-width: 100%;
+      margin: 38px auto 0;
+      padding: 18px 28px;
+      border: 1px solid rgba(37,99,235,.16);
+      border-radius: 18px;
+      background: rgba(255,255,255,.78);
+      box-shadow: var(--shadow);
+      font-family: "Times New Roman", "STIX Two Math", serif;
+      font-size: clamp(27px, 4.4vw, 43px);
+      letter-spacing: .02em;
+    }
+
+    main { padding-bottom: 90px; }
+
+    section {
+      margin: 26px 0;
+      padding: clamp(28px, 5vw, 58px);
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(223,228,236,.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .section-number {
+      margin: 0 0 8px;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0 0 22px;
+      font-size: clamp(27px, 4vw, 42px);
+      line-height: 1.25;
+      letter-spacing: -.03em;
+    }
+
+    h3 {
+      margin: 30px 0 10px;
+      font-size: 21px;
+      line-height: 1.4;
+    }
+
+    p { margin: 12px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      margin: 26px 0;
+      padding: 22px 24px;
+      border-left: 4px solid var(--blue);
+      border-radius: 0 16px 16px 0;
+      background: var(--blue-soft);
+      font-size: 19px;
+      font-weight: 620;
+    }
+
+    .formula {
+      overflow-x: auto;
+      margin: 22px 0;
+      padding: 22px 24px;
+      border-radius: 15px;
+      background: #111827;
+      color: #f8fafc;
+      text-align: center;
+      font-family: "Times New Roman", "STIX Two Math", serif;
+      font-size: clamp(23px, 3.4vw, 34px);
+      line-height: 1.45;
+      white-space: nowrap;
+    }
+
+    .formula.small {
+      font-size: clamp(19px, 2.7vw, 26px);
+      text-align: left;
+      white-space: normal;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+      align-items: center;
+    }
+
+    .mini-card {
+      height: 100%;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: #fbfcff;
+    }
+
+    .mini-card h3 { margin-top: 0; }
+
+    .geometry {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #fcfdff, #f4f7fc);
+    }
+
+    .geometry svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      padding: 0 18px 17px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .legend .blue { color: var(--blue); }
+    .legend .violet { color: var(--violet); }
+    .legend .green { color: var(--green); }
+
+    .steps {
+      display: grid;
+      gap: 14px;
+      margin-top: 26px;
+      counter-reset: step;
+    }
+
+    .step {
+      position: relative;
+      padding: 20px 22px 20px 70px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      counter-increment: step;
+    }
+
+    .step::before {
+      content: counter(step);
+      position: absolute;
+      left: 20px;
+      top: 18px;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--blue);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .step strong { display: block; margin-bottom: 3px; }
+
+    .equations {
+      display: grid;
+      gap: 8px;
+      margin: 20px 0;
+      padding: 20px 24px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fbfcff;
+      font-family: "Times New Roman", "STIX Two Math", serif;
+      font-size: 22px;
+    }
+
+    .answer {
+      margin-top: 26px;
+      padding: 22px;
+      border: 1px solid rgba(15,138,103,.26);
+      border-radius: 16px;
+      background: rgba(15,138,103,.08);
+      color: #08644b;
+      font-size: 20px;
+      font-weight: 720;
+    }
+
+    .lab {
+      margin-top: 28px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fbfcff;
+    }
+
+    .lab-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .lab-head strong { font-size: 18px; }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--blue);
+    }
+
+    .lab-readout {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .datum {
+      padding: 14px;
+      border-radius: 13px;
+      background: #fff;
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+
+    .datum span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .datum strong {
+      font-family: "Times New Roman", serif;
+      font-size: 21px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 13px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist li {
+      position: relative;
+      padding: 16px 18px 16px 50px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fbfcff;
+    }
+
+    .checklist li::before {
+      content: "✓";
+      position: absolute;
+      left: 18px;
+      top: 15px;
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .warning {
+      border-color: rgba(245,158,11,.28);
+      background: rgba(245,158,11,.07);
+    }
+
+    footer {
+      padding: 34px 0 52px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    @media (max-width: 760px) {
+      nav { display: none; }
+      .hero { padding: 70px 0 48px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .lab-readout { grid-template-columns: 1fr; }
+      section { padding: 28px 22px; }
+      .formula { margin-left: -6px; margin-right: -6px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">数学直觉课 · 唐二</div>
+      <nav aria-label="页内导航">
+        <a href="#idea">核心直觉</a>
+        <a href="#method">求解方法</a>
+        <a href="#example">完整例题</a>
+        <a href="#pitfalls">常见陷阱</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">LAGRANGE MULTIPLIER METHOD</div>
+      <h1>约束之下，<br>如何寻找极值？</h1>
+      <p class="lead">
+        拉格朗日乘数法并不是一套神秘公式。它表达的是一个很直观的事实：
+        当你已经无法沿着约束继续改善目标时，目标函数与约束的梯度必然平行。
+      </p>
+      <div class="hero-formula">∇f = λ∇g</div>
+    </header>
+
+    <main>
+      <section id="idea">
+        <p class="section-number">01 · The problem</p>
+        <h2>普通极值与约束极值，差别在哪里？</h2>
+        <div class="grid-2">
+          <div class="mini-card">
+            <h3>没有约束</h3>
+            <p>变量可以向任意方向移动。内部极值点处，函数已经没有任何一阶上升方向，因此通常满足：</p>
+            <div class="formula small">∂f/∂x = 0，∂f/∂y = 0<br>也就是 ∇f = 0</div>
+          </div>
+          <div class="mini-card">
+            <h3>存在约束</h3>
+            <p>如果必须满足 <strong>x + y = 1</strong>，你就只能沿着这条直线移动。极值点处的梯度不一定为零，因为有些方向根本不允许走。</p>
+            <div class="formula small">允许的移动方向<br>被约束条件限制</div>
+          </div>
+        </div>
+        <div class="callout">
+          拉格朗日法真正寻找的不是“所有方向都走不动”的点，而是“沿着约束允许的方向已经无法继续改善”的点。
+        </div>
+      </section>
+
+      <section>
+        <p class="section-number">02 · Geometry</p>
+        <h2>为什么两个梯度必须平行？</h2>
+        <div class="grid-2">
+          <div>
+            <p>把目标函数 <strong>f(x, y)</strong> 想象成一组等高线。沿着同一条等高线移动，函数值保持不变；梯度 <strong>∇f</strong> 垂直于等高线，指向增长最快的方向。</p>
+            <p>约束 <strong>g(x, y)=0</strong> 也是一条曲线，它的梯度 <strong>∇g</strong> 同样垂直于这条曲线。</p>
+            <p>在约束极值点，目标函数的等高线刚好与约束曲线相切。两条曲线拥有相同的切线方向，因此它们的法向量必然平行：</p>
+            <div class="formula">∇f = λ∇g</div>
+          </div>
+          <div class="geometry" aria-label="目标函数等高线与约束线相切的示意图">
+            <svg viewBox="0 0 520 390" role="img">
+              <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#dce3ee" stroke-width="1"/>
+                </pattern>
+                <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 z" fill="#2563eb"/>
+                </marker>
+                <marker id="arrow-violet" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/>
+                </marker>
+              </defs>
+              <rect width="520" height="390" fill="url(#grid)"/>
+              <circle cx="100" cy="320" r="92" fill="none" stroke="#0f8a67" stroke-width="3"/>
+              <circle cx="100" cy="320" r="150" fill="none" stroke="#0f8a67" stroke-width="2" opacity=".45"/>
+              <line x1="42" y1="140" x2="385" y2="370" stroke="#7c3aed" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="177" cy="269" r="8" fill="#172033"/>
+              <line x1="177" y1="269" x2="244" y2="224" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow-blue)"/>
+              <line x1="177" y1="269" x2="231" y2="233" stroke="#7c3aed" stroke-width="4" marker-end="url(#arrow-violet)" opacity=".72"/>
+              <text x="251" y="218" font-size="20" font-family="serif" fill="#2563eb">∇f</text>
+              <text x="238" y="257" font-size="20" font-family="serif" fill="#7c3aed">λ∇g</text>
+              <text x="195" y="301" font-size="15" fill="#172033">相切点</text>
+            </svg>
+            <div class="legend">
+              <span class="green">f 的等高线</span>
+              <span class="violet">约束 g=0</span>
+              <span class="blue">平行梯度</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="method">
+        <p class="section-number">03 · The method</p>
+        <h2>把几何关系变成可计算的方程</h2>
+        <p>要在约束 <strong>g(x,y)=0</strong> 下求 <strong>f(x,y)</strong> 的极值，引入一个新变量 λ，并构造拉格朗日函数：</p>
+        <div class="formula">L(x, y, λ) = f(x, y) + λg(x, y)</div>
+        <p>然后让它对所有变量的一阶偏导都等于零：</p>
+        <div class="equations">
+          <div>∂L/∂x = 0</div>
+          <div>∂L/∂y = 0</div>
+          <div>∂L/∂λ = g(x,y) = 0</div>
+        </div>
+        <p class="muted">
+          有些教材写成 L=f−λg，也完全正确。λ 本来就是未知数，整体改变符号不会改变最终的 x、y。
+        </p>
+
+        <div class="steps">
+          <div class="step"><strong>确定目标函数</strong>明确究竟要最大化或最小化哪个量。</div>
+          <div class="step"><strong>把约束改写成等于零</strong>例如 x+y=1 改写为 g(x,y)=x+y−1=0。</div>
+          <div class="step"><strong>构造拉格朗日函数</strong>写出 L=f+λg；每增加一个等式约束，就增加一个乘数。</div>
+          <div class="step"><strong>求偏导并解方程组</strong>得到所有候选点，而不是直接宣布得到了极值。</div>
+          <div class="step"><strong>比较并验证</strong>检查目标函数值、边界、不可微点以及极值是否真的存在。</div>
+        </div>
+      </section>
+
+      <section id="example">
+        <p class="section-number">04 · Worked example</p>
+        <h2>完整例题：直线上距离原点最近的点</h2>
+        <p>求函数 <strong>f(x,y)=x²+y²</strong> 在约束 <strong>x+y=1</strong> 下的最小值。</p>
+
+        <h3>先理解它在问什么</h3>
+        <p>x²+y² 是点 (x,y) 到原点距离的平方。因此题目其实是在直线 x+y=1 上，寻找距离原点最近的点。</p>
+
+        <h3>构造拉格朗日函数</h3>
+        <div class="formula small">g(x,y)=x+y−1=0<br><br>L=x²+y²+λ(x+y−1)</div>
+
+        <h3>求偏导</h3>
+        <div class="equations">
+          <div>∂L/∂x = 2x + λ = 0</div>
+          <div>∂L/∂y = 2y + λ = 0</div>
+          <div>∂L/∂λ = x + y − 1 = 0</div>
+        </div>
+
+        <h3>解方程组</h3>
+        <p>前两个方程相减得到 2x−2y=0，所以 <strong>x=y</strong>。再代入 x+y=1：</p>
+        <div class="formula">x = y = 1/2</div>
+        <p>代回目标函数：</p>
+        <div class="formula">f(1/2, 1/2) = 1/4 + 1/4 = 1/2</div>
+        <div class="answer">最小值是 1/2，在点 (1/2, 1/2) 处取得。</div>
+
+        <div class="lab">
+          <div class="lab-head">
+            <strong>动手改变约束：x+y=c</strong>
+            <span class="muted">拖动滑块</span>
+          </div>
+          <input id="constraint" type="range" min="0.4" max="2.6" step="0.1" value="1" aria-label="约束常数 c">
+          <div class="lab-readout" aria-live="polite">
+            <div class="datum"><span>约束 c</span><strong id="c-value">1.0</strong></div>
+            <div class="datum"><span>最优点 x=y</span><strong id="xy-value">0.50</strong></div>
+            <div class="datum"><span>最小值 f</span><strong id="f-value">0.50</strong></div>
+          </div>
+          <p class="muted">规律是：最优点为 (c/2, c/2)，最小值为 c²/2。约束线离原点越远，能接触到的最小圆也越大。</p>
+        </div>
+
+        <h3>为什么没有最大值？</h3>
+        <p>直线 x+y=1 可以无限延伸。例如 x=100、y=−99 仍然满足约束，但 x²+y² 已经非常大。因此它有最小值，却没有最大值。</p>
+      </section>
+
+      <section>
+        <p class="section-number">05 · Meaning of λ</p>
+        <h2>λ 不只是一个辅助变量</h2>
+        <p>在经济学和工程优化中，λ 通常反映：如果把约束稍微放宽一点，最优目标值会改变多少。</p>
+        <div class="callout">
+          λ 常被称为影子价格（shadow price）：它衡量一单位额外资源对最优结果的边际价值。
+        </div>
+        <p>具体正负号会受到 L=f+λg 或 L=f−λg 写法的影响，但它表达的“约束敏感度”不变。</p>
+      </section>
+
+      <section>
+        <p class="section-number">06 · More constraints</p>
+        <h2>存在多个约束时怎么办？</h2>
+        <p>如果同时存在两个等式约束 g₁=0、g₂=0，就为它们分别引入 λ₁、λ₂：</p>
+        <div class="formula small">L = f + λ₁g₁ + λ₂g₂<br><br>∇f = −λ₁∇g₁ − λ₂∇g₂</div>
+        <p>直观上，目标函数的梯度必须落在所有约束梯度所张成的方向之中。每增加一个等式约束，就增加一个拉格朗日乘数。</p>
+      </section>
+
+      <section id="pitfalls" class="warning">
+        <p class="section-number">07 · Pitfalls</p>
+        <h2>解出方程，不等于已经找到极值</h2>
+        <ul class="checklist">
+          <li><strong>候选点不一定是极值点。</strong>它可能是最大值、最小值，也可能两者都不是。</li>
+          <li><strong>极值可能不存在。</strong>约束集合如果不封闭或无界，函数值可能无限增大或逼近却无法取得。</li>
+          <li><strong>别漏掉边界和不可微点。</strong>一阶条件只覆盖满足常规光滑条件的候选点。</li>
+          <li><strong>警惕 ∇g=0。</strong>约束本身在该点退化时，标准拉格朗日条件可能无法捕捉答案。</li>
+          <li><strong>不等式约束需要 KKT 条件。</strong>当约束形如 g(x)≤0 时，要使用更一般的 Karush–Kuhn–Tucker 条件。</li>
+        </ul>
+      </section>
+
+      <section>
+        <p class="section-number">One sentence summary</p>
+        <h2>最后只记住这一句话</h2>
+        <div class="formula small">
+          在约束极值点，目标函数的梯度必须落在约束梯度所张成的方向中。
+        </div>
+        <p class="muted">单个约束时，就是最熟悉的 ∇f=λ∇g。</p>
+      </section>
+    </main>
+
+    <footer>
+      一份从几何直觉出发的拉格朗日乘数法入门 · 2026
+    </footer>
+  </div>
+
+  <script>
+    const slider = document.getElementById("constraint");
+    const cValue = document.getElementById("c-value");
+    const xyValue = document.getElementById("xy-value");
+    const fValue = document.getElementById("f-value");
+
+    function updateLab() {
+      const c = Number(slider.value);
+      cValue.textContent = c.toFixed(1);
+      xyValue.textContent = (c / 2).toFixed(2);
+      fValue.textContent = (c * c / 2).toFixed(2);
+    }
+
+    slider.addEventListener("input", updateLab);
+    updateLab();
+  </script>
+</body>
+</html>
