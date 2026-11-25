@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="从几何直觉到完整计算，通俗理解拉格朗日乘数法如何求解带约束的函数极值。">
+  <meta name="description" content="从几何直觉到完整计算，理解拉格朗日乘数法及其在正则化、SVM、概率模型和安全强化学习中的应用。">
   <meta name="theme-color" content="#111827">
   <meta property="og:title" content="拉格朗日乘数法：约束之下，如何寻找极值？">
   <meta property="og:description" content="几何直觉、完整例题、标准步骤与常见陷阱。">
@@ -415,6 +415,7 @@
         <a href="#idea">核心直觉</a>
         <a href="#method">求解方法</a>
         <a href="#example">完整例题</a>
+        <a href="#ai-applications">AI 应用</a>
         <a href="#pitfalls">常见陷阱</a>
       </nav>
     </div>
@@ -580,8 +581,68 @@
         <p>直观上，目标函数的梯度必须落在所有约束梯度所张成的方向之中。每增加一个等式约束，就增加一个拉格朗日乘数。</p>
       </section>
 
+      <section id="ai-applications">
+        <p class="section-number">07 · AI &amp; Machine Learning</p>
+        <h2>拉格朗日乘数法在 AI 中解决什么问题？</h2>
+        <p>机器学习训练通常是在最小化预测误差，但真实系统往往还有复杂度、概率归一化、安全、资源和公平性等限制。拉格朗日方法把这些限制转化为可以和模型参数一起优化的“价格”。</p>
+        <div class="formula small">L(θ, λ) = Loss(θ) + λ · Constraint(θ)</div>
+        <div class="callout">
+          λ 可以理解为“违反约束的价格”：约束越紧、越容易被突破，它对训练方向的影响就越大。
+        </div>
+
+        <div class="grid-2">
+          <div class="mini-card">
+            <h3>正则化与权重衰减</h3>
+            <p>限制参数规模 <strong>‖θ‖²≤C</strong>，可以转化为：</p>
+            <div class="formula small">Loss(θ) + λ‖θ‖²</div>
+            <p class="muted">L2 正则化中的 λ，就是模型复杂度的价格。λ 越大，模型越偏向较小参数；λ 过小容易过拟合，过大则可能欠拟合。</p>
+          </div>
+
+          <div class="mini-card">
+            <h3>支持向量机 SVM</h3>
+            <p>SVM 给每个分类约束分配一个乘数 αᵢ。最终：</p>
+            <div class="formula small">w = Σ αᵢyᵢxᵢ</div>
+            <p class="muted">多数样本的 αᵢ=0；只有边界附近 αᵢ&gt;0 的样本真正决定分类面，它们就是支持向量。</p>
+          </div>
+
+          <div class="mini-card">
+            <h3>概率模型与最大熵</h3>
+            <p>概率必须满足 <strong>Σpᵢ=1</strong>。拉格朗日乘数可以在最大似然或最大熵推导中强制归一化，并导出指数族分布。</p>
+            <div class="formula small">p(x) ∝ exp(Σ λₖfₖ(x))</div>
+            <p class="muted">Softmax、Logistic Regression、最大熵模型和条件随机场都与这套结构密切相关。</p>
+          </div>
+
+          <div class="mini-card">
+            <h3>带约束的深度学习</h3>
+            <p>除准确率外，还可以约束模型大小、推理延迟、显存、功耗、稀疏度、单调性或不同群体之间的误差差异。</p>
+            <div class="formula small">Loss + Σ λₖgₖ(θ)</div>
+            <p class="muted">原始—对偶优化会交替更新模型参数 θ 和约束价格 λₖ，让被违反的约束逐渐获得更大权重。</p>
+          </div>
+
+          <div class="mini-card">
+            <h3>安全强化学习</h3>
+            <p>智能体既要最大化奖励，也要把碰撞、能耗或其他风险控制在预算内：</p>
+            <div class="formula small">Reward − λ(Risk − Budget)</div>
+            <p class="muted">风险超出预算时，λ 上升，策略会更重视安全。这是约束马尔可夫决策过程（CMDP）的核心思路之一。</p>
+          </div>
+
+          <div class="mini-card">
+            <h3>鲁棒优化与最优传输</h3>
+            <p>对抗训练会限制输入扰动 <strong>‖δ‖≤ε</strong>；最优传输要求搬运方案保持两端概率质量守恒。</p>
+            <div class="formula small">min θ · max ‖δ‖≤ε Loss(θ,x+δ)</div>
+            <p class="muted">拉格朗日对偶可用于处理扰动边界、Wasserstein 距离、域适应和分布鲁棒优化中的约束。</p>
+          </div>
+        </div>
+
+        <h3>它和梯度下降是什么关系？</h3>
+        <p>两者解决的是不同层面的问题：梯度下降告诉我们<strong>参数应该往哪个方向更新</strong>；拉格朗日方法告诉我们<strong>存在硬性限制时，应该优化什么目标</strong>。实际训练中，通常仍然使用梯度下降来优化构造出来的拉格朗日函数。</p>
+        <div class="callout">
+          拉格朗日乘数法并不是反向传播的基础。它主要用于“模型既要降低损失，又必须满足约束”的场景。
+        </div>
+      </section>
+
       <section id="pitfalls" class="warning">
-        <p class="section-number">07 · Pitfalls</p>
+        <p class="section-number">08 · Pitfalls</p>
         <h2>解出方程，不等于已经找到极值</h2>
         <ul class="checklist">
           <li><strong>候选点不一定是极值点。</strong>它可能是最大值、最小值，也可能两者都不是。</li>
