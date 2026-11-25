@@ -3,9 +3,10 @@ layout: home
 title: 已发布页面
 ---
 
-这里汇集我目前发布的八个页面。点击名称即可打开；部分页面可能需要访问权限。
+这里汇集我目前发布的九个页面。点击名称即可打开；部分页面可能需要访问权限。
 
 <ul class="published-pages">
+  <li><a href="/lagrange-multiplier/">拉格朗日乘数法：约束之下，如何寻找极值？</a><span>从几何直觉到完整计算，附可交互的约束变化实验。</span></li>
   <li><a href="/how-neural-networks-learn/">神经网络到底是怎么学会东西的？</a><span>从苹果识别讲起，附梯度下降与单权重训练互动实验。</span></li>
   <li><a href="/ai-agent-engineering-course/">AI Agent 工程师课程</a><span>学习智能体系统的设计、实现与工程实践。</span></li>
   <li><a href="/ai-infra-course/">AI Infra 工程师知识体系</a><span>以推理基础设施为主线的工程课程。</span></li>
