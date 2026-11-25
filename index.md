@@ -3,7 +3,7 @@ layout: home
 title: 已发布页面
 ---
 
-这里汇集我目前公开发布的七个独立页面。点击名称即可打开。
+这里汇集我目前发布的八个页面。点击名称即可打开；部分页面可能需要访问权限。
 
 <ul class="published-pages">
   <li><a href="/how-neural-networks-learn/">神经网络到底是怎么学会东西的？</a><span>从苹果识别讲起，附梯度下降与单权重训练互动实验。</span></li>
@@ -13,6 +13,7 @@ title: 已发布页面
   <li><a href="/maple/">日本枫树品种百科</a><span>浏览品种资料、图片与养护信息。</span></li>
   <li><a href="/mediterranean-meal-mixer/">地中海料理搭配器</a><span>搭配菜谱，查看营养估算与购物清单。</span></li>
   <li><a href="/qdii-direct-monitor/">QDII 申购额度与费率</a><span>查看场外基金的申购额度、费率和渠道信息。</span></li>
+  <li><a href="https://gt7-driving-lab.tanghuaizhe.chatgpt.site/">GT7 赛道驾驶原理课程与训练追踪站</a><span>学习车辆动态，记录纽博格林北环训练与复盘；访问可能需要授权。</span></li>
 </ul>
 
 <style>
