@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="完整推导支持向量机：最大间隔、硬间隔原始问题、拉格朗日乘数、对偶问题、KKT 条件、数值算例与核技巧。">
+  <meta property="og:title" content="支持向量机如何推导出核函数：从原始问题到对偶问题">
+  <meta property="og:type" content="article">
+  <title>支持向量机如何推导出核函数：从原始问题到对偶问题</title>
+  <link rel="stylesheet" href="/assets/css/math-course.css">
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","zjfq09wog7");
+  </script>
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" onerror="document.getElementById('math-status').textContent='公式组件加载失败，请检查网络后刷新页面。'"></script>
+</head>
+<body>
+  <header class="topbar"><div class="wrap topbar-inner"><a class="brand" href="/">数学学习 · 已发布页面</a><nav aria-label="课程导航"><a href="/kernel-functions/">上一篇：核函数</a><a href="/lagrange-multiplier/">拉格朗日乘数法</a></nav></div></header>
+  <div class="wrap">
+    <header class="hero"><span class="eyebrow">机器学习数学 · 第二篇</span><h1>支持向量机如何推导出核函数？</h1><p class="lead">从最大间隔的几何问题出发，逐步得到样本内积形式；核技巧最终成为自然的代换。</p><div class="hero-formula">\[w=\sum_i\alpha_i y_i x_i\]</div></header>
+    <p id="math-status" class="math-status" role="status">公式加载中…</p>
+    <nav class="toc" aria-label="本文目录"><h2>推导路线</h2><ol><li><a href="#symbols">符号、分数与法向量</a></li><li><a href="#margin">最大间隔的几何推导</a></li><li><a href="#primal">硬间隔原始问题</a></li><li><a href="#lagrangian">拉格朗日函数与驻点</a></li><li><a href="#dual">完整对偶问题</a></li><li><a href="#kkt">KKT 条件与支持向量</a></li><li><a href="#numeric">两点数值算例</a></li><li><a href="#kernel">核技巧从哪里进入</a></li><li><a href="#soft">软间隔及常见误区</a></li></ol></nav>
+    <article>
+      <section id="symbols"><h2>一、先弄清我们在求什么</h2>
+        <p>设训练集为 \(\{(x_i,y_i)\}_{i=1}^n\)，其中 \(x_i\in\mathbb R^p\)、\(y_i\in\{-1,+1\}\)。线性分类器的<strong>决策分数</strong>是 \(f(x)=w^Tx+b\)；真正的预测类别为 \(\hat y=\operatorname{sign}f(x)\)。\(f(x)=0\) 是分类边界，边界上的类别需另行约定。</p>
+        <div class="scroll"><table class="symbol-table"><thead><tr><th>符号</th><th>含义</th></tr></thead><tbody><tr><td>\(n,p\)</td><td>训练样本数、原始特征维数。</td></tr><tr><td>\(x_i,y_i\)</td><td>第 \(i\) 个训练向量及其真实类别。</td></tr><tr><td>\(w,b\)</td><td>超平面的法向量与偏置。</td></tr><tr><td>\(\alpha_i\)</td><td>第 \(i\) 个不等式约束的拉格朗日乘数，\(\alpha_i\ge0\)。</td></tr><tr><td>\(\phi,K\)</td><td>特征映射及对应的内积核函数。</td></tr></tbody></table></div>
+        <p>为什么 \(w\) 是法向量？若 \(p,q\) 都在超平面 \(w^Tx+b=0\) 上，相减得 \(w^T(p-q)=0\)。沿超平面的方向 \(p-q\) 与 \(w\) 正交，因此 \(w\) 垂直于该平面。这里的 \(p,q\) 是几何点，不是上表中的特征维数。</p>
+      </section>
+      <section id="margin"><h2>二、最大间隔如何写成公式？</h2>
+        <p>同一分类边界可由 \((w,b)\) 或 \((cw,cb)\) 表示，只要 \(c>0\)，符号预测不变。对严格线性可分的数据，可选择缩放，使最近训练样本满足 \(y_i(w^Tx_i+b)=1\)。此时两侧支持平面是 \(w^Tx+b=+1\) 和 \(w^Tx+b=-1\)。</p>
+        <figure><svg viewBox="0 0 700 280" role="img" aria-label="两侧支持平面和中间分类边界，支持向量位于间隔边界上"><rect width="700" height="280" fill="#f9fbff"/><path d="M185 28 V245 M350 28 V245 M515 28 V245" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 5"/><path d="M350 28 V245" stroke="#0f8a67" stroke-width="3"/><text x="185" y="24" text-anchor="middle" fill="#2563eb" font-size="15">−1</text><text x="350" y="24" text-anchor="middle" fill="#0f8a67" font-size="15">0</text><text x="515" y="24" text-anchor="middle" fill="#ef4444" font-size="15">+1</text><g fill="#2563eb"><circle cx="185" cy="115" r="8"/><circle cx="100" cy="75" r="7"/><circle cx="125" cy="190" r="7"/></g><g fill="#ef4444"><circle cx="515" cy="165" r="8"/><circle cx="605" cy="83" r="7"/><circle cx="574" cy="211" r="7"/></g><circle cx="185" cy="115" r="15" fill="none" stroke="#2563eb"/><circle cx="515" cy="165" r="15" fill="none" stroke="#ef4444"/><path d="M185 252 H515" stroke="#7c3aed" stroke-width="2"/><path d="M185 247 V257 M515 247 V257" stroke="#7c3aed" stroke-width="2"/><text x="350" y="272" text-anchor="middle" fill="#7c3aed" font-size="14">整个间隔 M = 2 / ‖w‖</text></svg><figcaption>示意图：圆圈标出位于两侧支持平面上的样本；支持平面与分类边界均相互平行。</figcaption></figure>
+        <p>取两支持平面上沿法向量对齐的点 \(x_+,x_-\)。相减得 \(w^T(x_+-x_-)=2\)。若最短距离为 \(M\)，则 \(x_+-x_-=M w/\|w\|\)，所以 \(M\|w\|=2\)，即</p><div class="formula">\[M=\frac{2}{\|w\|},\qquad \text{每侧到分类边界的距离}=\frac1{\|w\|}.\]</div>
+        <p>\(+1\) 和 \(-1\) 是<strong>函数值的规范化</strong>，并非几何距离 1。最大化 \(M\) 等价于最小化 \(\|w\|\)，进一步等价于最小化易于求导的 \(\tfrac12\|w\|^2\)。</p>
+      </section>
+      <section id="primal"><h2>三、硬间隔 SVM 的原始优化问题</h2>
+        <p>若只最小化 \(\|w\|^2/2\)，会得到无法分类的 \(w=0\)。必须要求正类落在 \(+1\) 平面之外，负类落在 \(-1\) 平面之外。合并两类约束为 \(y_i(w^Tx_i+b)\ge1\)。于是原始问题为</p>
+        <div class="formula">\[\begin{aligned}\min_{w,b}\quad&\frac12\|w\|^2\\
+        \text{满足}\quad&y_i(w^Tx_i+b)\ge1,\quad i=1,\ldots,n.
+        \end{aligned}\]</div>
+        <p>此处假设训练数据<strong>严格线性可分</strong>。目标函数是凸的，约束是仿射的；严格可分时可缩放到所有约束严格大于 1，因此满足强对偶所需的严格可行条件。</p>
+      </section>
+      <section id="lagrangian"><h2>四、引入拉格朗日乘数，并求驻点</h2>
+        <p>把约束改写成 \(g_i(w,b)=1-y_i(w^Tx_i+b)\le0\)。每个约束配一个 \(\alpha_i\ge0\)，构造</p>
+        <div class="formula">\[L(w,b,\alpha)=\frac12\|w\|^2+\sum_{i=1}^n\alpha_i[1-y_i(w^Tx_i+b)].\]</div>
+        <p>对 \(w\) 和 \(b\) 分别求偏导。利用 \(\nabla_w\frac12 w^Tw=w\)、\(\nabla_w(w^Tx_i)=x_i\)，得到</p>
+        <div class="formula">\[\nabla_wL=w-\sum_i\alpha_i y_i x_i=0
+        \quad\Longrightarrow\quad
+        \boxed{w=\sum_i\alpha_i y_i x_i},\]
+        \[\frac{\partial L}{\partial b}=-\sum_i\alpha_i y_i=0
+        \quad\Longrightarrow\quad \boxed{\sum_i\alpha_i y_i=0}.\]</div>
+        <p>这直接回答“\(w^Tx+b\) 怎么变成样本内积求和”：将驻点表达式代回即可，</p>
+        <div class="formula">\[f(x)=\left(\sum_i\alpha_i y_i x_i\right)^Tx+b
+        =\boxed{\sum_i\alpha_i y_i(x_i^Tx)+b}.\]</div>
+        <p>但 \(\alpha_i\) 还没有求出；仅有驻点等式尚不足以完成训练。下面的对偶问题决定这些乘数。</p>
+      </section>
+      <section id="dual"><h2>五、从拉格朗日函数得到对偶问题</h2>
+        <p>对固定的非负 \(\alpha\)，定义对偶函数 \(q(\alpha)=\inf_{w,b}L(w,b,\alpha)\)。先展开：</p>
+        <div class="formula">\[L=\frac12\|w\|^2+\sum_i\alpha_i
+        -w^T\sum_i\alpha_i y_i x_i-b\sum_i\alpha_i y_i.\]</div>
+        <p>如果 \(\sum_i\alpha_i y_i\ne0\)，对无约束的 \(b\) 取下确界会得到 \(-\infty\)。因此有限对偶值必须满足该等式。再令 \(v=\sum_i\alpha_i y_i x_i\)，对 \(w\) 的部分配方：</p>
+        <div class="formula">\[\frac12\|w\|^2-w^Tv
+        =\frac12\|w-v\|^2-\frac12\|v\|^2.\]</div>
+        <p>下确界在 \(w=v\) 取得，因而</p>
+        <div class="formula">\[q(\alpha)=\sum_i\alpha_i-\frac12\left\|\sum_i\alpha_i y_i x_i\right\|^2
+        =\sum_i\alpha_i-\frac12\sum_{i,j}\alpha_i\alpha_jy_i y_j(x_i^Tx_j).\]</div>
+        <p>最终的对偶问题为</p>
+        <div class="formula">\[\begin{aligned}\max_{\alpha}\quad&
+        \sum_i\alpha_i-\frac12\sum_{i,j}\alpha_i\alpha_j y_i y_j(x_i^Tx_j)\\
+        \text{满足}\quad&\alpha_i\ge0\ (i=1,\ldots,n),\qquad \sum_i\alpha_i y_i=0.
+        \end{aligned}\]</div>
+        <p>这是对凹二次目标的最大化，约束为线性条件。最重要的结构变化是：训练目标只含训练样本间内积 \(x_i^Tx_j\)，预测也只含 \(x_i^Tx\)。</p>
+      </section>
+      <section id="kkt"><h2>六、KKT 条件为何筛出支持向量？</h2>
+        <p>卡鲁什－库恩－塔克条件（KKT 条件）在这里包括：原始可行性 \(y_i f(x_i)\ge1\)、对偶可行性 \(\alpha_i\ge0\)、上述两个驻点等式，以及<strong>互补松弛</strong></p>
+        <div class="formula">\[\alpha_i[1-y_i f(x_i)]=0.\]</div>
+        <p>若某个点严格处在间隔之外，即 \(y_i f(x_i)>1\)，方括号非零，所以 \(\alpha_i=0\)。若 \(\alpha_i>0\)，则必有 \(y_i f(x_i)=1\)，该点落在支持平面上。反向推断要谨慎：在退化或重复样本情况下，恰好落在支持平面上的点也可能有 \(\alpha_i=0\)。</p>
+        <p>若已求出正乘数 \(\alpha_s>0\)，可由对应支持向量求偏置：
+        \(b=y_s-\sum_j\alpha_j y_j(x_j^Tx_s)\)。数值实现常对多个合适的支持向量所得 \(b\) 取平均。</p>
+      </section>
+      <section id="numeric"><h2>七、用两个训练点从头算到预测</h2>
+        <p>取一维样本 \((x_1,y_1)=(-1,-1)\)、\((x_2,y_2)=(1,+1)\)。两点严格可分。原始约束分别为 \(w-b\ge1\)、\(w+b\ge1\)，所以 \(w\ge1+|b|\)。最小化 \(w^2/2\) 得 \(w=1,b=0\)，间隔宽度为 2。</p>
+        <p>对偶等式 \(-\alpha_1+\alpha_2=0\)，设两者均为 \(a\)。由于 \(w=\alpha_1 y_1 x_1+\alpha_2 y_2 x_2=2a\)，对偶目标化为</p>
+        <div class="formula">\[q(a)=2a-\frac12(2a)^2=2a-2a^2,\qquad a\ge0.\]</div>
+        <p>求导 \(q'(a)=2-4a=0\)，故 \(\alpha_1=\alpha_2=1/2\)、\(w=1\)。取正类支持向量 \(x_2=1\)，由 \(y_2 f(x_2)=1\) 得 \(1(1+b)=1\)，所以 \(b=0\)。</p>
+        <p>预测新样本 \(x=0.4\)：原始式 \(f(x)=wx+b=0.4\)；样本内积式</p>
+        <div class="formula">\[f(0.4)=\tfrac12(-1)(-1\cdot0.4)+\tfrac12(+1)(1\cdot0.4)=0.2+0.2=0.4.\]</div>
+        <p>两种计算完全一致，预测类别为 \(+1\)。这也显示 \(\alpha_i\) 不是随意设定的“投票权重”，而是约束优化求出的乘数。</p>
+      </section>
+      <section id="kernel"><h2>八、核技巧到底从哪一步进入？</h2>
+        <p>若原始空间中无法用直线分开，可选特征映射 \(\phi(x)\)，在特征空间令 \(f(x)=\langle w_{\mathcal H},\phi(x)\rangle+b\)。重复上述推导，驻点变成 \(w_{\mathcal H}=\sum_i\alpha_i y_i\phi(x_i)\)。训练目标里的 \(x_i^Tx_j\) 换成 \(\langle\phi(x_i),\phi(x_j)\rangle\)，预测式里的 \(x_i^Tx\) 也一样替换。</p>
+        <p>如果能直接计算合法核 \(K(u,v)=\langle\phi(u),\phi(v)\rangle\)，就不必写出 \(\phi\) 的每个坐标：</p>
+        <div class="formula">\[\begin{aligned}\max_{\alpha}\quad&
+        \sum_i\alpha_i-\frac12\sum_{i,j}\alpha_i\alpha_j y_i y_j K(x_i,x_j),\\
+        \text{满足}\quad&\alpha_i\ge0,\quad\sum_i\alpha_i y_i=0;
+        \end{aligned}\]
+        \[\boxed{f(x)=\sum_i\alpha_i y_i K(x_i,x)+b},\qquad
+        \hat y=\operatorname{sign}f(x).\]</div>
+        <p>例如采用二次核 \(K(u,v)=(u^Tv)^2\)，分类器在隐式二次特征上是线性的，在原始坐标里则可呈现非线性边界。高斯核的无限维特征展开及合法核条件，详见<a href="/kernel-functions/">上一篇：机器学习中的核函数</a>。</p>
+      </section>
+      <section id="soft"><h2>九、现实数据不能完全分开时</h2>
+        <p>硬间隔模型要求所有训练点满足间隔约束，遇到标签噪声或不可分数据便不适用。软间隔 SVM 加入松弛变量 \(\xi_i\ge0\) 与惩罚参数 \(C>0\)：</p>
+        <div class="formula">\[\min_{w,b,\xi}\ \frac12\|w\|^2+C\sum_i\xi_i,
+        \qquad y_i f(x_i)\ge1-\xi_i,\quad \xi_i\ge0.\]</div>
+        <p>其对偶问题仍使用相同的核化二次目标与 \(\sum_i\alpha_i y_i=0\)，但乘数范围变为 \(0\le\alpha_i\le C\)。此时支持向量不一定都恰好位于 \(y_i f(x_i)=1\)：\(0<\alpha_i<C\) 的点满足等号，\(\alpha_i=C\) 的点可能在间隔内或被分错。求 \(b\) 时应优先使用自由支持向量。</p>
+        <div class="callout warning"><strong>三处容易混淆：</strong>\(f(x)\) 是决策分数而非类别；核内积不是任意的 \([0,1]\) 相似度；核技巧省去显式特征坐标，但核矩阵的存储和训练仍可能昂贵。</div>
+      </section>
+    </article>
+    <aside class="next"><a href="/kernel-functions/">← 回到核函数的直觉解释</a><p>先修：<a href="/lagrange-multiplier/">拉格朗日乘数法</a>；继续理解特征学习：<a href="/how-neural-networks-learn/">神经网络如何学习</a>。</p></aside>
+    <footer>数学学习课程 · 2026</footer>
+  </div>
+  <script>window.addEventListener('load',()=>{const s=document.getElementById('math-status');if(window.MathJax?.startup?.promise){MathJax.startup.promise.then(()=>s.remove()).catch(()=>{s.textContent='公式渲染失败，请刷新页面。';s.classList.add('error')})}else{s.textContent='公式组件未加载，请检查网络后刷新页面。';s.classList.add('error')}});</script>
+</body>
+</html>
