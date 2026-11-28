@@ -71,7 +71,7 @@
 <figure><svg id="integral-chart" viewBox="0 0 680 300" role="img" aria-label="从2到100的理论密度曲线与曲线下面积"></svg><figcaption>曲线下的面积给出对数积分的估计数量。注意 \(1/\ln 2>1\)，所以小数字处它不应被当作严格的概率。</figcaption></figure>
 <p>为什么积分比直接使用 \(x/\ln x\) 更准确？后者相当于用终点附近的密度去估算整个区间，而前面的素数密度更高，后面的密度更低。积分考虑了这种连续变化。</p>
 <div id="li-bars" class="lab" aria-label="一百万以内实际计数和两种估计对比"></div>
-<p>当 \(x=10^6\) 时，实际素数数量为 78,498，简单估计约为 72,382，对数积分（以 2 为起点）约为 78,626。简单估计相对误差约 7.79%，积分误差约 0.16%。对数积分通常提供更好的近似，但不保证每个 \(x\) 上都更准确。</p>
+<p>当 \(x=10^6\) 时，实际素数数量为 78,498，简单估计约为 72,382，对数积分（以 2 为起点）约为 78,626.504（四舍五入为 78,627）。简单估计相对误差约 7.79%，积分误差约 0.16%。对数积分通常提供更好的近似，但不保证每个 \(x\) 上都更准确。</p>
 <p>常见的另一种记号 \(\operatorname{li}(x)=\operatorname{PV}\int_0^x dt/\ln t\) 采用柯西主值，与这里的 \(\operatorname{Li}_2(x)\) 仅相差常数约 1.04516。两者的大规模渐近性质相同。</p>
 <p>分部积分可解释两种估计的关系：</p><div class="formula">\[\operatorname{Li}_2(x)=\frac{x}{\ln x}-\frac{2}{\ln2}+\int_2^x\frac{dt}{(\ln t)^2}.\]</div>
 <p>继续展开，可得到 \(x/\ln x+x/\ln^2x+2x/\ln^3x+\cdots\) 的渐近展开（固定截断阶数，并非对固定 \(x\) 的收敛级数）。首项就是素数定理的简单估计。</p><div class="formula">\[\pi(x)\sim\operatorname{Li}_2(x)\sim\frac{x}{\ln x}\]</div>
@@ -161,7 +161,7 @@ function chartAxes(svg,{left=55,top=18,right=655,bottom=245}={}){line(svg,left,t
 }
 function bars(id,rows,max){for(const [title,value,text,color] of rows){const box=document.createElement('div');box.className='barrow';const head=document.createElement('div');const name=document.createElement('span'),val=document.createElement('strong');name.textContent=title;val.textContent=text;head.append(name,val);const track=document.createElement('div');track.className='track';const fill=document.createElement('div');fill.className='fill';fill.style.width=Math.min(100,value/max*100)+'%';if(color)fill.style.background=color;track.append(fill);box.append(head,track);$(id).append(box);}}
 bars('density-bars',[10,100,1e4,1e6,1e8,1e12].map(x=>[fmt(x)+' 附近',1/Math.log(x),pct(100/Math.log(x))]),1);
-bars('li-bars',[['实际素数数量',78498,'78,498','#64748b'],['简单估计 x/ln x',1e6/Math.log(1e6),fmt(1e6/Math.log(1e6)),'#b45309'],['对数积分估计',78626,'78,626','#2563eb']],80000);
+bars('li-bars',[['实际素数数量',78498,'78,498','#64748b'],['简单估计 x/ln x',1e6/Math.log(1e6),fmt(1e6/Math.log(1e6)),'#b45309'],['对数积分估计',78626.50399568182,'78,626.504','#2563eb']],80000);
 {
  const svg=$('integral-chart'),X=t=>55+(t-2)/98*600,Y=y=>250-y/1.5*220;
  chartAxes(svg,{bottom:250});
