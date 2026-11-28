@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="从欧几里得证明素数无限，到素数定理、对数积分、欧拉乘积、黎曼ζ函数及黎曼猜想。附完整数值实验和可交互图表。">
+<meta property="og:title" content="素数的无限与秩序：从欧几里得到素数定理"><meta property="og:type" content="article">
+<title>素数的无限与秩序：从欧几里得到素数定理</title>
+<link rel="stylesheet" href="/assets/css/math-course.css">
+<style>
+.lab{padding:20px;border:1px solid var(--line);border-radius:16px;background:#fbfcff;margin:20px 0}.readouts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}.datum{background:white;border:1px solid var(--line);border-radius:12px;padding:12px;overflow-wrap:anywhere}.datum small{display:block}.datum strong{font-size:clamp(19px,3vw,27px);font-variant-numeric:tabular-nums}.prime-grid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;max-width:580px;margin:20px auto}.prime-grid span{display:grid;place-items:center;aspect-ratio:1;background:#e9eef5;border-radius:5px;font-size:clamp(12px,2.6vw,19px)}.prime-grid .prime{background:#2563eb;color:white}.barrow{margin:10px 0}.barrow div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:14px}.track{background:#e9eef5;border-radius:5px;height:12px;overflow:hidden}.fill{background:#2563eb;height:100%;border-radius:5px}.numeric td:not(:first-child),.numeric th:not(:first-child){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.sample-grid{display:grid;grid-template-columns:repeat(25,1fr);gap:3px;margin:16px 0}.sample-grid span{aspect-ratio:1;background:#e9eef5;border-radius:2px}.sample-grid .hit{background:#2563eb}.diagram{display:grid;gap:12px;text-align:center;margin:20px 0}.diagram div{border:1px solid var(--line);background:#f4f7ff;padding:14px;border-radius:10px}.branches{display:grid;grid-template-columns:1fr 1fr;gap:12px}.diagram .arrow{background:none;border:0;padding:0;color:var(--muted)}.legend{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-size:14px;color:var(--muted)}.legend b{color:#2563eb}.legend em{color:#b45309;font-style:normal;font-weight:bold}input[type=range]{accent-color:#2563eb}.math-status{margin-top:0}pre{overflow:auto;background:#f3f6fa;border-radius:12px;padding:16px;font-size:14px}svg text{font-family:system-ui,sans-serif;font-size:12px;fill:#475569}.source{font-size:14px;color:var(--muted)}@media(max-width:480px){.lab{padding:12px}.branches{grid-template-columns:1fr}.readouts{gap:6px}.datum{padding:8px}.sample-grid{gap:2px}.numeric td,.numeric th{padding:7px 9px}}
+</style>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" onerror="document.getElementById('math-status').textContent='公式组件加载失败，请检查网络后刷新页面。'"></script>
+</head>
+<body>
+<header class="topbar"><div class="wrap topbar-inner"><a class="brand" href="/">数学学习 · 已发布页面</a><nav aria-label="页内导航"><a href="#euclid">无限性</a><a href="#pnt">素数定理</a><a href="#zeta">ζ 函数</a></nav></div></header>
+<div class="wrap">
+<header class="hero"><span class="eyebrow">NUMBER THEORY · 数论</span><h1>素数的无限与秩序</h1><p class="lead">单独看每一个素数，位置似乎杂乱无章；把观察范围扩大到几百万、几亿甚至更大，却能看到明确的宏观数学规律。从两千多年前的欧几里得出发，走向素数定理与黎曼猜想。</p><div class="hero-formula">\[\pi(x)\sim\frac{x}{\ln x}\]</div></header>
+<p id="math-status" class="math-status" role="status">公式加载中…</p>
+<nav class="toc" aria-label="文章目录"><h2>阅读路线</h2><ol>
+<li><a href="#euclid">欧几里得：素数为什么无限？</a></li><li><a href="#euclid-lab">具体例子与交互实验</a></li><li><a href="#count">素数计数函数</a></li><li><a href="#pnt">素数定理的严格含义</a></li><li><a href="#data">真实数据与误差</a></li><li><a href="#density">密度与平均间隔</a></li><li><a href="#li">对数积分</a></li><li><a href="#scale-lab">规模交互实验</a></li><li><a href="#zeta">为什么是自然对数？</a></li><li><a href="#proof">经典证明路线</a></li><li><a href="#riemann">黎曼猜想与误差</a></li><li><a href="#summary">三个层次与动手验证</a></li>
+</ol></nav>
+<article>
+<section id="euclid"><h2>一、如何证明素数有无穷多个？</h2>
+<p>素数（Prime number）是大于 1、只有 1 和自身两个正因数的整数。例如 2、3、5、7、11。1 既不是素数也不是合数。</p>
+<p>证明素数有无穷多个，最经典的方法是<strong>欧几里得证明（Euclid's proof）</strong>。它诞生于两千多年前，几乎不需要任何高等数学知识，却非常巧妙。</p>
+<h3>第一步：假设素数只有有限多个</h3>
+<p>采用反证法（Proof by contradiction）。假设世界上所有素数都已找到，共有 \(n\) 个，按大小排列为：</p><div class="formula">\[p_1,p_2,p_3,\ldots,p_n\]</div><p>也就是 \(2,3,5,7,11,13,\ldots,p_n\)，其中 \(p_n\) 是世界上最大的素数。</p>
+<h3>第二步：构造一个新整数</h3><p>把所有素数乘起来，再加 1：</p><div class="formula">\[N=p_1p_2p_3\cdots p_n+1\]</div><p>为什么要加 1？这是整个证明最巧妙的地方。乘积恰好是每个已有素数的倍数，加 1 后就避开了所有这些倍数。</p>
+<h3>第三步：用已有素数整除 N</h3><div class="formula">\[\begin{aligned}N\bmod p_1&=1\\N\bmod p_2&=1\\&\vdots\\N\bmod p_n&=1\end{aligned}\]</div><p>也就是说，我们假设存在的所有素数都无法整除 \(N\)，余数永远是 1。</p>
+<h3>第四步：产生矛盾</h3><p>任何大于 1 的整数，要么本身是素数，要么能够分解成若干素数的乘积。因为 \(N>1\)，所以只有两种可能：</p>
+<div class="diagram" aria-label="欧几里得证明的两种情况"><div>构造新整数 \(N=p_1p_2\cdots p_n+1\)</div><p class="arrow">↓</p><div class="branches"><div><strong>N 本身是素数</strong><p>发现了一个更大的素数</p></div><div><strong>N 是合数</strong><p>必然存在不在原列表中的素因子</p></div></div><p class="arrow">↓</p><div><strong>与素数只有有限多个的假设矛盾</strong></div></div>
+<p>无论哪种情况，都意味着存在一个不在原列表中的新素数。因此最初的假设不成立。</p><div class="formula">\[\boxed{\text{素数有无穷多个}}\quad\square\]</div>
+<p>这里真正依赖的是每个大于 1 的整数至少拥有一个素因子：如果一个合数的因子还不是素数，就继续分解，直到找到素数。因为因子严格变小，这个过程必然结束。</p>
+</section>
+<section id="euclid-lab"><h2>二、通过具体数字来理解</h2>
+<p>假设世界上只有 \(2,3,5,7,11\) 这几个素数。我们构造：</p><div class="formula">\[N=2\times3\times5\times7\times11+1=2311\]</div>
+<div class="scroll"><table class="symbol-table numeric"><thead><tr><th>除数</th><th>余数</th></tr></thead><tbody><tr><td>2</td><td>1</td></tr><tr><td>3</td><td>1</td></tr><tr><td>5</td><td>1</td></tr><tr><td>7</td><td>1</td></tr><tr><td>11</td><td>1</td></tr></tbody></table></div>
+<p>2311 恰好是一个新的素数。不过，所有素数相乘再加 1 并不一定得到素数。例如：</p><div class="formula">\[2\times3\times5\times7\times11\times13+1=30031=59\times509\]</div><p>虽然 30031 不是素数，但其两个素因子 59 和 509 都不在原列表中，同样证明了列表不完整。</p>
+<div class="lab"><h3 style="margin-top:0">交互实验：任何有限列表都不完整</h3><div class="slider-row"><label for="euclid-n">假设已知素数个数</label><input id="euclid-n" type="range" min="1" max="10" step="1" value="6"><output id="euclid-n-out" for="euclid-n">6</output></div><p id="euclid-list"></p><div class="readouts" aria-live="polite"><div class="datum"><small>乘积加 1</small><strong id="euclid-value">30,031</strong></div><div class="datum"><small>素因数分解</small><strong id="euclid-factors">59 × 509</strong></div></div><p id="euclid-result">发现原列表之外的素因子。</p><div id="euclid-remainders" class="muted"></div><p class="source">这里对实际构造出的整数做试除分解，所有数据都是真实计算，而非随机示意。</p></div>
+<h3>这个证明为什么深刻？</h3><p>欧几里得揭示了一个数学结构：任何有限的素数集合，都能被证明不完整。他不需要知道下一个素数在哪里，也不需要知道分布规律，仅利用整数的乘法和整除性质，就能证明素数永远不会被穷尽。</p><p>但这并没有回答：小于某个 \(x\) 的素数大约有多少个？实际分布与理论估计的误差有多大？是否存在无穷多对相差 2 的素数（孪生素数猜想，尚未解决）？这就引出了素数定理。</p>
+</section>
+<section id="count"><h2>三、素数计数函数（Prime-counting function）</h2>
+<p>定义一个函数，统计不大于 \(x\) 的素数数量：</p><div class="formula">\[\pi(x)=\sum_{\substack{p\leq x\\p\text{ 为素数}}}1\]</div>
+<p>这里的 \(\pi\) 与圆周率无关。例如 \(\pi(10)=4\)，分别是 2、3、5、7；\(\pi(100)=25\)；\(\pi(1000)=168\)。</p>
+<figure><div id="prime-grid" class="prime-grid" role="img" aria-label="1至100中25个素数以蓝色标记"></div><figcaption>1～100 的真实素数分布：蓝色 25 个素数，灰色 75 个非素数（包括 1）。</figcaption></figure>
+<p>随着 \(x\) 不断增大，素数计数函数持续增长，但相对于 \(x\) 而言增长越来越慢。素数定理描述的正是这种宏观分布规律，而不是给出下一个素数的位置。</p>
+</section>
+<section id="pnt"><h2>四、素数定理的核心公式</h2><p>素数定理（Prime Number Theorem, PNT）告诉我们：</p><div class="formula">\[\boxed{\pi(x)\sim\frac{x}{\ln x}}\]</div>
+<p>\(x\) 是观察的数字上限；\(\pi(x)\) 是实际素数数量；\(\ln x\) 是以 \(e\approx2.71828\) 为底的自然对数；符号 \(\sim\) 表示渐近等价（Asymptotic equivalence）。</p><p>严格的数学表述是：</p><div class="formula">\[\boxed{\lim_{x\to\infty}\frac{\pi(x)}{x/\ln x}=1}\]</div>
+<p>这意味着，当 \(x\) 趋于无穷大时，用 \(x/\ln x\) 来估计素数数量，其<strong>相对误差</strong>趋于零，而非绝对误差趋于零。</p>
+<div class="callout"><strong>不要把渐近等价理解成相等。</strong> 两个数可以都很大，差值也很大，但它们的比值仍可非常接近 1。例如 \(x\) 与 \(x+\sqrt{x}\) 的比值趋于 1，差值却趋于无穷大。</div>
+</section>
+<section id="data"><h2>五、用真实数据观察素数定理</h2>
+<div class="scroll"><table class="symbol-table numeric"><thead><tr><th>数字上限 x</th><th>实际素数数量</th><th>理论估计 x/ln x</th><th>相对误差</th></tr></thead><tbody id="pnt-table"></tbody></table></div>
+<p class="source">实际计数来自已知的十进制素数计数值；理论估计按公式计算并四舍五入，误差统一以实际素数数量为分母，使用未取整的估计值。</p>
+<figure><svg id="ratio-chart" viewBox="0 0 680 290" role="img" aria-label="实际素数数量除以理论估计的比值，随观察范围整体接近1"></svg><figcaption>横轴采用对数刻度；纵轴为 \(\pi(x)/(x/\ln x)\)。绿色虚线表示极限值 1。</figcaption></figure>
+<p>虽然中间存在波动，但从长期来看，比值接近 1。这些数据并不是素数定理的数学证明，只是有限规模的数值检验。</p>
+</section>
+<section id="density"><h2>六、素数密度与平均间隔</h2>
+<p>将素数定理两边同时除以 \(x\)：</p><div class="formula">\[\frac{\pi(x)}{x}\sim\frac{1}{\ln x}\]</div><p>左边是素数在前 \(x\) 个自然数中的占比。于是可将 \(\rho(x)\approx1/\ln x\) 理解为素数的近似密度。在适当的平均意义下，它也可描述 \(x\) 附近的整数成为素数的可能性。</p>
+<div id="density-bars" class="lab" aria-label="不同数字规模的理论素数密度"></div>
+<p class="source">小规模处的近似并不精确；这些柱状图给出理论密度，不是短区间的实测值。严格地，对于固定 \(\delta>0\)，区间 \([x,(1+\delta)x]\) 的素数数量渐近为 \(\delta x/\ln x\)。不能由此直接推出任意很短区间的素数数量。</p>
+<p>反过来，密度的倒数就是典型的平均间隔尺度：</p><div class="formula">\[\boxed{d(x)\approx\ln x}\]</div>
+<div class="scroll"><table class="symbol-table numeric"><thead><tr><th>数字附近</th><th>典型平均间隔</th></tr></thead><tbody><tr><td>1,000</td><td>6.91</td></tr><tr><td>100 万</td><td>13.82</td></tr><tr><td>1 亿</td><td>18.42</td></tr><tr><td>1 万亿</td><td>27.63</td></tr><tr><td>\(10^{100}\)</td><td>230.26</td></tr></tbody></table></div>
+<p>即使到了一个拥有 101 位数字的整数附近，素数的典型平均间隔尺度也不过 230 左右。这是反直觉的结果：素数越来越稀疏，但稀疏化的速度非常缓慢，因为自然对数增长得非常慢。</p>
+<p>这里说的是平均尺度，不意味着每隔固定数量的整数就一定存在一个素数。事实上，可构造任意长的连续合数：对任意 \(m\ge2\)，整数 \(m!+2,m!+3,\ldots,m!+m\) 分别能被 \(2,3,\ldots,m\) 整除。故素数间隔没有固定上界。</p>
+</section>
+<section id="li"><h2>七、更准确的公式：对数积分（Logarithmic integral）</h2>
+<p>如果接受素数的近似密度 \(\rho(t)=1/\ln t\)，那么从 2 到 \(x\) 有多少个素数？将区间内所有位置的密度累加起来。在连续数学中，累加对应积分：</p><div class="formula">\[\boxed{\operatorname{Li}_2(x)=\int_2^x\frac{dt}{\ln t}}\]</div>
+<figure><svg id="integral-chart" viewBox="0 0 680 300" role="img" aria-label="从2到100的理论密度曲线与曲线下面积"></svg><figcaption>曲线下的面积给出对数积分的估计数量。注意 \(1/\ln 2>1\)，所以小数字处它不应被当作严格的概率。</figcaption></figure>
+<p>为什么积分比直接使用 \(x/\ln x\) 更准确？后者相当于用终点附近的密度去估算整个区间，而前面的素数密度更高，后面的密度更低。积分考虑了这种连续变化。</p>
+<div id="li-bars" class="lab" aria-label="一百万以内实际计数和两种估计对比"></div>
+<p>当 \(x=10^6\) 时，实际素数数量为 78,498，简单估计约为 72,382，对数积分（以 2 为起点）约为 78,626。简单估计相对误差约 7.79%，积分误差约 0.16%。对数积分通常提供更好的近似，但不保证每个 \(x\) 上都更准确。</p>
+<p>常见的另一种记号 \(\operatorname{li}(x)=\operatorname{PV}\int_0^x dt/\ln t\) 采用柯西主值，与这里的 \(\operatorname{Li}_2(x)\) 仅相差常数约 1.04516。两者的大规模渐近性质相同。</p>
+<p>分部积分可解释两种估计的关系：</p><div class="formula">\[\operatorname{Li}_2(x)=\frac{x}{\ln x}-\frac{2}{\ln2}+\int_2^x\frac{dt}{(\ln t)^2}.\]</div>
+<p>继续展开，可得到 \(x/\ln x+x/\ln^2x+2x/\ln^3x+\cdots\) 的渐近展开（固定截断阶数，并非对固定 \(x\) 的收敛级数）。首项就是素数定理的简单估计。</p><div class="formula">\[\pi(x)\sim\operatorname{Li}_2(x)\sim\frac{x}{\ln x}\]</div>
+</section>
+<section id="scale-lab"><h2>八、交互式观察：素数如何随规模变化</h2><p>拖动滑块，观察自然数规模不断增大时，素数数量、密度、相对误差与平均间隔如何变化。</p>
+<div class="lab"><div class="slider-row"><label for="scale">观察范围 \(x=10^k\)</label><input id="scale" type="range" min="1" max="12" value="6" step="1"><output id="scale-out" for="scale"></output></div>
+<div class="readouts" aria-live="polite"><div class="datum"><small>实际素数数量</small><strong id="scale-exact"></strong></div><div class="datum"><small>素数定理估计数量</small><strong id="scale-est"></strong></div><div class="datum"><small>理论素数密度</small><strong id="scale-density"></strong></div><div class="datum"><small>典型平均间隔</small><strong id="scale-gap"></strong></div><div class="datum"><small>实际密度</small><strong id="scale-actual-density"></strong></div><div class="datum"><small>估计相对误差</small><strong id="scale-error"></strong></div></div>
+<p>理论密度的随机示意（非真实素数位置）</p><div id="sample-grid" class="sample-grid" role="img" aria-label="200个固定伪随机样本按理论素数密度显示"></div><p class="source">固定 200 个伪随机样本，依据 \(1/\ln x\) 标记蓝色位置；拖动时保留同一批样本，以直观对比密度变化。真正的素数是确定的，不是相互独立的随机事件。</p></div>
+</section>
+<section id="zeta"><h2>九、为什么偏偏是自然对数？</h2>
+<p>为什么素数数量不是 \(x/\sqrt{x}\)，或者 \(x/\ln^2 x\)，而偏偏是 \(x/\ln x\)？这涉及黎曼 ζ 函数与欧拉乘积。</p>
+<h3>1. 黎曼 ζ 函数（Riemann zeta function）</h3><div class="formula">\[\zeta(s)=\sum_{n=1}^{\infty}\frac1{n^s}\qquad(\operatorname{Re}s>1)\]</div>
+<p>当 \(s\) 的实部大于 1 时，根据欧拉乘积（Euler product）：</p><div class="formula">\[\boxed{\zeta(s)=\prod_{p\text{ 为素数}}\frac1{1-p^{-s}}}\]</div><div class="formula">\[\zeta(s)=\frac1{1-2^{-s}}\frac1{1-3^{-s}}\frac1{1-5^{-s}}\cdots\]</div>
+<div class="diagram"><div class="branches"><div><strong>所有自然数</strong><p>1, 2, 3, 4, 5, …</p>加法形式：无穷级数</div><div><strong>所有素数</strong><p>2, 3, 5, 7, 11, …</p>乘法形式：无穷乘积</div></div><p class="arrow">↓ 两种等价表达 ↓</p><div><strong>黎曼 ζ 函数</strong> \(\zeta(s)\)</div><p class="arrow">↓</p><div>通过分析连续复变函数的性质，推导素数分布规律</div></div>
+<p>这建立了整数的加法表达与素数的乘法表达之间的桥梁。数学家不需要直接研究每一个素数，而可以借助连续复变函数间接获得素数信息。</p>
+<h3>2. 欧拉乘积为什么成立？</h3><p>使用几何级数：</p><div class="formula">\[\frac1{1-p^{-s}}=1+p^{-s}+p^{-2s}+\cdots.\]</div><p>将每个素数对应的级数相乘，每个整数 \(n\) 根据唯一素因数分解 \(n=\prod_p p^{k_p}\) 恰好出现一次，对应项为 \(n^{-s}\)。在 \(\operatorname{Re}s>1\) 时绝对收敛保证这种展开合法。举例，\(12=2^2\times3\)，所以 \(12^{-s}=2^{-2s}3^{-s}\) 恰好来自这两个因子的对应项。</p>
+<p>如果说自然数像建筑物，素数就像构成建筑物的基本积木；欧拉乘积把这种离散的乘法结构编码进一个函数。</p>
+</section>
+<section id="proof"><h2>十、素数定理的经典证明思路</h2><p>以下是证明路线，而不是完整的复分析严格证明。1896 年，阿达马（Hadamard）和德拉瓦莱·普桑（de la Vallée Poussin）分别证明了素数定理。</p>
+<h3>第一步：取对数再求导</h3><div class="formula">\[\ln\zeta(s)=-\sum_p\ln(1-p^{-s})=\sum_p\sum_{k=1}^{\infty}\frac{p^{-ks}}k\]</div><div class="formula">\[-\frac{\zeta'(s)}{\zeta(s)}=\sum_p\sum_{k=1}^{\infty}\frac{\ln p}{p^{ks}}\]</div><p>这里在实数 \(s>1\) 或选定适当解析对数的右半平面成立。自然对数 \(\ln p\) 出现了：对指数项 \(p^{-ks}=\exp(-ks\ln p)\) 求导自然产生 \(\ln p\) 权重。</p>
+<h3>第二步：引入切比雪夫函数（Chebyshev function）</h3><div class="formula">\[\psi(x)=\sum_{p^k\leq x}\ln p,\qquad \theta(x)=\sum_{p\leq x}\ln p.\]</div><p>前者对素数及其幂加权统计，后者仅对素数本身加权。也可定义冯·曼戈尔特函数 \(\Lambda(n)=\ln p\)（若 \(n=p^k\)），否则为 0，从而 \(\psi(x)=\sum_{n\le x}\Lambda(n)\)。</p><div class="formula">\[-\frac{\zeta'(s)}{\zeta(s)}=\sum_{n=1}^{\infty}\frac{\Lambda(n)}{n^s}\]</div>
+<h3>第三步：ζ 函数在 Re(s)=1 上没有零点</h3><p>ζ 函数在 \(s=1\) 处有一个简单极点，而在直线 \(\operatorname{Re}(s)=1\) 的其余点上没有零点。结合适当的分析方法（现代证明常采用 Tauberian theorem，即陶伯定理），可以由该极点及边界性质推出：</p><div class="formula">\[\psi(x)\sim x\]</div><p>这是经典证明的实质性难点。不能仅凭欧拉乘积或 \(\ln p\) 的出现，就断言素数定理已经被证明。</p>
+<h3>第四步：去掉高次素数幂</h3><p>每一个满足 \(p^k\le x,\ k\ge2\) 的素数必满足 \(p\le\sqrt x\)。对每个素数，高次幂贡献不超过 \(\ln x\)，因此总贡献至多为 \(\sqrt x\ln x=o(x)\)。所以：</p><div class="formula">\[\psi(x)-\theta(x)=O(\sqrt x\ln x),\qquad \theta(x)\sim x.\]</div>
+<h3>第五步：消除对数权重，得到素数计数函数</h3><p>使用分部求和（Partial summation），把每一个 \(\ln p\) 的权重乘以 \(1/\ln p\)：</p><div class="formula">\[\pi(x)=\frac{\theta(x)}{\ln x}+\int_2^x\frac{\theta(t)}{t(\ln t)^2}\,dt.\]</div><p>由于 \(\theta(x)\sim x\)，第一项渐近等于 \(x/\ln x\)，第二项为 \(O(x/\ln^2x)\)，相对较小（可将积分在 \(\sqrt x\) 处分段验证）。故：</p><div class="formula">\[\boxed{\pi(x)\sim\frac{x}{\ln x}}\]</div>
+<p>这也解释了为什么最后是自然对数：加权素数计数呈线性主趋势，解除自然对数权重后得到 \(x/\ln x\)。</p><p>补充：1949 年发表的 Selberg–Erdős 初等证明不依赖复分析；“初等”指使用的数学工具，不意味着证明简单。</p>
+</section>
+<section id="riemann"><h2>十一、素数定理与黎曼猜想</h2>
+<p>素数定理告诉我们总体趋势；黎曼猜想进一步试图约束实际分布偏离这一趋势的程度。</p>
+<figure><svg id="count-chart" viewBox="0 0 680 330" role="img" aria-label="1到100的真实阶梯素数计数函数与对数积分曲线"></svg><div class="legend"><b>蓝色：实际计数 π(x)</b><em>橙色虚线：对数积分</em></div><figcaption>蓝线每遇到一个素数就上升 1，橙线是平滑的理论估计。</figcaption></figure>
+<p>定义误差函数：</p><div class="formula">\[E(x)=\pi(x)-\operatorname{Li}_2(x)\]</div><p>素数定理保证：</p><div class="formula">\[E(x)=o\!\left(\frac{x}{\ln x}\right)\]</div><p>小 o 符号表示误差除以 \(x/\ln x\) 后趋于零。黎曼猜想（Riemann hypothesis）则提出，ζ 函数的所有非平凡零点 \(\rho\) 满足：</p><div class="formula">\[\operatorname{Re}(\rho)=\frac12.\]</div>
+<p>若黎曼猜想成立，可得到更强的误差界：</p><div class="formula">\[\boxed{E(x)=O(\sqrt{x}\ln x)}\]</div>
+<p>大 O 表示对于充分大的 \(x\)，误差绝对值被某个常数倍的 \(\sqrt x\ln x\) 控制。这并不是说误差一定等于该表达式，也不是说每个素数的位置都能预测。黎曼猜想仍是未解决的数学问题。</p>
+<h3>为什么零点会影响素数分布？</h3><p>黎曼显式公式的一种形式（对不处于素数幂跳跃点的 \(x>1\)，零点求和按适当的对称截断理解）为：</p><div class="formula">\[\psi(x)=x-\sum_{\rho}\frac{x^\rho}{\rho}-\ln(2\pi)-\frac12\ln(1-x^{-2}).\]</div><p>其中 \(x\) 是宏观主项，零点对应波动项。若 \(\rho=\beta+i\gamma\)，则 \(x^\rho=x^\beta e^{i\gamma\ln x}\)。因此实部决定波动项的增长尺度，虚部与对数坐标中的振荡相关。这是一种更具体的理解：在自然数的离散世界里看见的起伏，可以通过复分析中的零点表达；但这并不意味着素数已经被证明是某个物理高维几何物体的投影。</p>
+</section>
+<section id="summary"><h2>十二、人类认识素数的三个层次</h2>
+<div class="scroll"><table class="symbol-table"><thead><tr><th>问题</th><th>欧几里得定理</th><th>素数定理</th><th>黎曼猜想</th></tr></thead><tbody><tr><td>时间</td><td>约公元前300年</td><td>1896年证明</td><td>1859年提出</td></tr><tr><td>核心问题</td><td>是否无限存在？</td><td>总体如何分布？</td><td>波动误差如何控制？</td></tr><tr><td>数学表达</td><td>\(\pi(x)\to\infty\)</td><td>\(\pi(x)\sim x/\ln x\)</td><td>\(\operatorname{Re}(\rho)=1/2\)</td></tr><tr><td>研究层次</td><td>存在性</td><td>宏观规律</td><td>精细波动</td></tr></tbody></table></div>
+<p>可类比物理学的统计力学：很难逐个预测气体分子的运动轨迹，但大量分子聚集时，却呈现精确的宏观规律。这个比喻只是帮助理解整体统计规律，并不暗示素数本身是随机运动的粒子。</p>
+<div class="callout"><strong>欧几里得发现了素数的无限性，素数定理发现了素数的宏观秩序，而黎曼猜想试图揭示这种宏观秩序背后的精细结构。</strong></div>
+<h3>动手验证：用 Python 实现埃拉托斯特尼筛</h3><p>程序员可以直接通过筛法计算有限范围内的真实素数计数。时间复杂度约为 \(O(x\log\log x)\)，空间复杂度为 \(O(x)\)。它能验证数值趋势，但不能替代无穷范围的数学证明。</p>
+<pre><code>from math import isqrt, log
+
+def prime_count(n):
+    if n &lt; 2:
+        return 0
+    sieve = bytearray(b'\x01') * (n + 1)
+    sieve[0:2] = b'\x00\x00'
+    for p in range(2, isqrt(n) + 1):
+        if sieve[p]:
+            sieve[p*p:n+1:p] = b'\x00' * ((n-p*p)//p + 1)
+    return sum(sieve)
+
+for x in (100, 1000, 10000, 100000, 1000000):
+    actual = prime_count(x)
+    estimate = x / log(x)
+    print(x, actual, round(estimate, 2),
+          round(actual / estimate, 6))</code></pre>
+<p>进一步推论：若 \(p_n\) 是第 \(n\) 个素数，则由素数定理可以反推出 \(p_n\sim n\ln n\)。它给出了第 \(n\) 个素数所在规模的估计。</p>
+<h3>延伸阅读与数据来源</h3><ul><li><a href="https://mathworld.wolfram.com/EuclidsTheorem.html">Wolfram MathWorld：Euclid's Theorem</a></li><li><a href="https://mathworld.wolfram.com/PrimeNumberTheorem.html">Wolfram MathWorld：Prime Number Theorem</a></li><li><a href="https://oeis.org/A006880">OEIS A006880：不超过 10 的整数次幂的素数数量</a></li><li><a href="https://dlmf.nist.gov/25">NIST DLMF 第25章：ζ 函数与相关函数</a></li><li><a href="https://www.claymath.org/millennium/riemann-hypothesis/">Clay Mathematics Institute：Riemann Hypothesis</a></li></ul>
+</section></article><aside class="next"><a href="/">返回已发布页面目录 →</a><p>其他数学文章：<a href="/lagrange-multiplier/">拉格朗日乘数法</a> · <a href="/kernel-functions/">核函数</a> · <a href="/svm-kernel-derivation/">SVM 推导</a></p></aside><footer>数学学习课程 · 2026</footer>
+</div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), fmt=n=>Math.round(n).toLocaleString('en-US'), pct=n=>n.toFixed(2)+'%';
+const primes=[2,3,5,7,11,13,17,19,23,29];
+function factors(n){const f=[];for(let d=2;d*d<=n;d+=(d===2?1:2)){while(n%d===0){f.push(d);n/=d;}}if(n>1)f.push(n);return f;}
+function euclid(){const n=Number($('euclid-n').value),ps=primes.slice(0,n),N=ps.reduce((a,b)=>a*b,1)+1,f=factors(N);$('euclid-n-out').textContent=n;$('euclid-list').textContent=ps.join(' × ')+' + 1';$('euclid-value').textContent=fmt(N);$('euclid-factors').textContent=f.map(fmt).join(' × ');$('euclid-result').textContent=f.length===1?'发现一个新的素数。':'发现原列表之外的素因子。';$('euclid-remainders').textContent='整除余数：'+ps.map(p=>N+' mod '+p+' = '+N%p).join('；');}
+$('euclid-n').addEventListener('input',euclid);euclid();
+const small=Array.from({length:99},(_,i)=>i+2).filter(n=>factors(n).length===1);
+for(let n=1;n<=100;n++){const el=document.createElement('span');el.textContent=n;if(small.includes(n))el.className='prime';$('prime-grid').append(el);}
+const counts=[null,4,25,168,1229,9592,78498,664579,5761455,50847534,455052511,4118054813,37607912018];
+const err=(a,b)=>100*Math.abs(a-b)/a;
+for(const k of [2,3,4,6,8,10,12]){const x=10**k,a=counts[k],b=x/Math.log(x),tr=document.createElement('tr');[fmt(x),fmt(a),fmt(b),pct(err(a,b))].forEach(v=>{let td=document.createElement('td');td.textContent=v;tr.append(td)});$('pnt-table').append(tr);}
+const NS='http://www.w3.org/2000/svg';
+function node(svg,tag,attrs,content){const el=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));if(content!==undefined)el.textContent=content;svg.append(el);return el;}
+function line(svg,x1,y1,x2,y2,color='#dbe2ed',dash){node(svg,'line',{x1,y1,x2,y2,stroke:color,...(dash?{'stroke-dasharray':dash}:{})});}
+function label(svg,x,y,t,anchor='middle'){node(svg,'text',{x,y,'text-anchor':anchor},t);}
+function path(svg,points,stroke,extra={}){node(svg,'path',{d:points.map(([x,y],i)=>(i?'L':'M')+x.toFixed(2)+' '+y.toFixed(2)).join(' '),fill:'none',stroke,'stroke-width':2.6,'stroke-linejoin':'round',...extra});}
+function chartAxes(svg,{left=55,top=18,right=655,bottom=245}={}){line(svg,left,top,left,bottom,'#94a3b8');line(svg,left,bottom,right,bottom,'#94a3b8');}
+{
+ const svg=$('ratio-chart'),X=k=>55+(k-2)*60,Y=v=>245-(v-.98)*1150;
+ chartAxes(svg);
+ for(const v of [1,1.05,1.10,1.15]){line(svg,55,Y(v),655,Y(v),v===1?'#0f8a67':'#dbe2ed',v===1?'5 4':null);label(svg,46,Y(v)+4,v.toFixed(2),'end');}
+ const ks=Array.from({length:11},(_,i)=>i+2),points=ks.map(k=>[X(k),Y(counts[k]*Math.log(10**k)/10**k)]);
+ path(svg,points,'#2563eb');points.forEach(([cx,cy])=>node(svg,'circle',{cx,cy,r:3.8,fill:'#2563eb'}));
+ for(let k=2;k<=12;k+=2)label(svg,X(k),265,'10^'+k);
+ label(svg,355,284,'数字上限 x（对数刻度）');
+}
+function bars(id,rows,max){for(const [title,value,text,color] of rows){const box=document.createElement('div');box.className='barrow';const head=document.createElement('div');const name=document.createElement('span'),val=document.createElement('strong');name.textContent=title;val.textContent=text;head.append(name,val);const track=document.createElement('div');track.className='track';const fill=document.createElement('div');fill.className='fill';fill.style.width=Math.min(100,value/max*100)+'%';if(color)fill.style.background=color;track.append(fill);box.append(head,track);$(id).append(box);}}
+bars('density-bars',[10,100,1e4,1e6,1e8,1e12].map(x=>[fmt(x)+' 附近',1/Math.log(x),pct(100/Math.log(x))]),1);
+bars('li-bars',[['实际素数数量',78498,'78,498','#64748b'],['简单估计 x/ln x',1e6/Math.log(1e6),fmt(1e6/Math.log(1e6)),'#b45309'],['对数积分估计',78626,'78,626','#2563eb']],80000);
+{
+ const svg=$('integral-chart'),X=t=>55+(t-2)/98*600,Y=y=>250-y/1.5*220;
+ chartAxes(svg,{bottom:250});
+ for(const y of [0,.3,.6,.9,1.2,1.5]){line(svg,55,Y(y),655,Y(y));label(svg,47,Y(y)+4,y.toFixed(1),'end');}
+ const points=Array.from({length:401},(_,i)=>{const t=2+98*i/400;return[X(t),Y(1/Math.log(t))]});
+ path(svg,[[X(2),250],...points,[X(100),250]],'none',{fill:'#2563eb','fill-opacity':'.16'});
+ path(svg,points,'#2563eb');for(const t of [2,20,40,60,80,100])label(svg,X(t),270,t);label(svg,355,289,'t');label(svg,350,208,'曲线下面积 = Li₂(x)');
+}
+function scale(){const k=Number($('scale').value),x=10**k,a=counts[k],b=x/Math.log(x);$('scale-out').textContent='10^'+k+' = '+fmt(x);$('scale-exact').textContent=fmt(a);$('scale-est').textContent=fmt(b);$('scale-density').textContent=pct(100/Math.log(x));$('scale-gap').textContent=Math.log(x).toFixed(2);$('scale-actual-density').textContent=pct(100*a/x);$('scale-error').textContent=pct(err(a,b));const grid=$('sample-grid');grid.replaceChildren();let state=123456789;for(let i=0;i<200;i++){state=(Math.imul(1664525,state)+1013904223)>>>0;const s=document.createElement('span');if(state/4294967296<1/Math.log(x))s.className='hit';grid.append(s);}}
+$('scale').addEventListener('input',scale);scale();
+{
+ const svg=$('count-chart'),X=t=>55+t*6,Y=y=>285-y*9.2;
+ chartAxes(svg,{bottom:285});
+ for(let y=0;y<=25;y+=5){line(svg,55,Y(y),655,Y(y));label(svg,46,Y(y)+4,y,'end');}
+ for(let t=0;t<=100;t+=20)label(svg,X(t),305,t);
+ const exact=[[X(0),Y(0)]];small.forEach((p,i)=>exact.push([X(p),Y(i)],[X(p),Y(i+1)]));exact.push([X(100),Y(small.length)]);path(svg,exact,'#2563eb');
+ let sum=0;const approx=[[X(2),Y(0)]];for(let i=1;i<=980;i++){const t=2+i*.1;sum+=.1/Math.log(t-.05);approx.push([X(t),Y(sum)]);}path(svg,approx,'#b45309',{'stroke-dasharray':'6 4'});label(svg,355,325,'数字上限 x');
+}
+window.addEventListener('load',()=>{const s=$('math-status');if(window.MathJax?.startup?.promise){MathJax.startup.promise.then(()=>s.remove()).catch(()=>{s.textContent='公式渲染失败，请刷新页面。';s.classList.add('error')})}else{s.textContent='公式组件未加载，请检查网络后刷新页面。';s.classList.add('error')}});
+</script></body></html>
