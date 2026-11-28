@@ -3,9 +3,10 @@ layout: home
 title: 已发布页面
 ---
 
-这里汇集我目前发布的十一个页面。点击名称即可打开；部分页面可能需要访问权限。
+这里汇集我目前发布的十二个页面。点击名称即可打开；部分页面可能需要访问权限。
 
 <ul class="published-pages">
+  <li><a href="/prime-number-theorem/">素数的无限与秩序：从欧几里得到素数定理</a><span>完整证明、素数密度与对数积分、ζ 函数和黎曼猜想，附可交互的素因数分解与规模实验。</span></li>
   <li><a href="/lagrange-multiplier/">拉格朗日乘数法：约束之下，如何寻找极值？</a><span>从几何直觉到完整计算，附可交互的约束变化实验。</span></li>
   <li><a href="/kernel-functions/">机器学习中的核函数</a><span>从非线性分类、特征映射与高斯核，走到核技巧和合法核条件。</span></li>
   <li><a href="/svm-kernel-derivation/">支持向量机如何推导出核函数？</a><span>原始优化问题、拉格朗日乘数、对偶问题、数值算例与核技巧。</span></li>
